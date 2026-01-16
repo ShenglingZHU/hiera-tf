@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hiera-tf"
+version = "0.1.0"
+description = "Hierarchical timeframe toolkit"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas>=1.5",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pandas>=1.5",
+]
+viz = ["bokeh"]
+analysis = [
+    "numpy",
+    "pandas>=1.5",
+    "scipy",
+]
+lint = ["ruff>=0.6"]
+all = ["bokeh", "numpy", "pandas", "scipy"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["htf"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+extend-exclude = [".venv", "dist", "build", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"htf/__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
