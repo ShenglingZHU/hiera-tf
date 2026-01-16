@@ -1,0 +1,50 @@
+Third-Party Notices
+===================
+
+This file lists third-party software and resources referenced by this repository.
+These notices are provided for informational purposes and do not modify the Apache License 2.0 that governs the project.
+
+If any third-party code/assets are redistributed as part of a release, the corresponding license texts and notices must be included as required by their licenses.
+
+External CDN resources (not distributed in this repository)
+-----------------------------------------------------------
+
+The following resources are loaded at runtime via CDN and are not vendored or redistributed in this repository.
+
+1) Google Fonts (ZCOOL XiaoWei, Noto Sans SC)
+   Used in: apps/ui-static/index.html
+   Source: <https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@300;400;500;700&display=swap>
+   License: SIL Open Font License 1.1
+   License URL: <https://scripts.sil.org/OFL>
+
+2) Plotly.js 2.27.0
+   Used in: apps/ui-static/index.html
+   Source: <https://cdn.plot.ly/plotly-2.27.0.min.js>
+   License: MIT
+   License URL: <https://github.com/plotly/plotly.js/blob/master/LICENSE>
+
+3) SheetJS (xlsx) 0.18.5
+   Used in: apps/ui-static/index.html
+   Source: <https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js>
+   License: Apache License 2.0
+   License URL: <https://github.com/SheetJS/sheetjs/blob/master/LICENSE>
+
+Python dependencies
+-------------------
+
+The following are optional runtime dependencies and are not vendored or redistributed in this repository.
+
+1) pandas
+   Used in: packages/htf-py/htf/timeframe.py (optional, for DataFrame export)
+   License: BSD 3-Clause
+   License URL: <https://github.com/pandas-dev/pandas/blob/main/LICENSE>
+
+2) Bokeh
+   Used in: packages/htf-py/htf/viz/multi_timeframe_plot.py (optional, for visualization)
+   License: BSD 3-Clause
+   License URL: <https://github.com/bokeh/bokeh/blob/main/LICENSE.txt>
+
+3) NumPy
+   Used in: packages/htf-py/htf/viz/multi_timeframe_plot.py (optional, for datetime detection)
+   License: BSD 3-Clause
+   License URL: <https://github.com/numpy/numpy/blob/main/LICENSE.txt>
