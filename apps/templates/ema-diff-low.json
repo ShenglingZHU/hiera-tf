@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "name": "ema-diff-low",
+      "createdAt": "2026-01-14T14:22:36.010Z",
+      "version": 1,
+      "root": {
+        "type": "SignalEMADiffVsHistoryPercentile",
+        "alias": "ema-diff-low",
+        "aliasEdited": true,
+        "params": {
+          "ema_period_1": "5",
+          "ema_period_2": "10",
+          "history_window": 50,
+          "percentile": "10",
+          "min_history": 1,
+          "comparison": "lt",
+          "trace_limit": ""
+        },
+        "children": {}
+      }
+    }
+  ]
+}

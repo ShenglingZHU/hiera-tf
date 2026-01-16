@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "name": "ema-diff-high_and_ema-slow_sup_ema-fast",
+      "createdAt": "2026-01-14T14:26:34.794Z",
+      "version": 1,
+      "root": {
+        "type": "SignalIntersection",
+        "alias": "ema-diff-high & ema-slow > ema-fast",
+        "aliasEdited": true,
+        "params": {},
+        "children": {
+          "signal_keys": [
+            {
+              "type": "SignalEMADiffVsHistoryPercentile",
+              "alias": "ema-diff-high",
+              "aliasEdited": true,
+              "params": {
+                "ema_period_1": "5",
+                "ema_period_2": "10",
+                "history_window": 50,
+                "percentile": 90,
+                "min_history": 1,
+                "comparison": "gt",
+                "trace_limit": ""
+              },
+              "children": {}
+            },
+            {
+              "type": "SignalEMAFastSlowComparison",
+              "alias": "ema-slow > ema-fast",
+              "aliasEdited": true,
+              "params": {
+                "ema_period_1": "5",
+                "ema_period_2": "10",
+                "prefer": "slow"
+              },
+              "children": {}
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "name": "ema-diff-high",
+      "createdAt": "2026-01-14T14:21:30.078Z",
+      "version": 1,
+      "root": {
+        "type": "SignalEMADiffVsHistoryPercentile",
+        "alias": "ema-diff-high",
+        "aliasEdited": true,
+        "params": {
+          "ema_period_1": "5",
+          "ema_period_2": "10",
+          "history_window": 50,
+          "percentile": 90,
+          "min_history": 1,
+          "comparison": "gt",
+          "trace_limit": ""
+        },
+        "children": {}
+      }
+    }
+  ]
+}
