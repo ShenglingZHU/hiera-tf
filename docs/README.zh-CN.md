@@ -2,9 +2,9 @@
 
 Languages:
 
-- [English README](README.en.md) (current)
+- [English README](README.en.md)
 - [README en français](README.fr.md)
-- [中文 README](README.zh-CN.md)
+- [中文 README](README.zh-CN.md) (当前)
 
 ## 1. 项目概览
 

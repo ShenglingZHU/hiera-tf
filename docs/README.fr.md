@@ -2,8 +2,8 @@
 
 Languages:
 
-- [English README](README.en.md) (current)
-- [README en français](README.fr.md)
+- [English README](README.en.md)
+- [README en français](README.fr.md) (actuel)
 - [中文 README](README.zh-CN.md)
 
 ## 1. Vue d'ensemble du projet
