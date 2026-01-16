@@ -1,0 +1,1551 @@
+﻿<!DOCTYPE html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright 2025-2026 ZHU Shengling -->
+<html lang="en" data-htf-base="../../packages/htf-js/htf">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title data-i18n="page.title">Hiera-TF Time Series Console</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+    />
+  </head>
+  <body class="lang-en">
+    <div class="ambient"></div>
+    <div class="app">
+      <header class="app-header">
+        <div class="app-title">
+          <span class="brand">Hiera-TF</span>
+          <div class="app-meta" data-i18n="header.subtitle">Multi-timeframe hierarchy signal visualization</div>
+        </div>
+        <div class="lang-switch" role="group" data-i18n="lang.switch.label" data-i18n-attr="aria-label">
+          <span class="lang-option" data-lang="en" role="button" tabindex="0" aria-current="true">EN</span>
+          <span class="lang-sep">|</span>
+          <span class="lang-option" data-lang="fr" role="button" tabindex="0">FR</span>
+          <span class="lang-sep">|</span>
+          <span class="lang-option" data-lang="zh" role="button" tabindex="0">CN</span>
+        </div>
+      </header>
+
+      <div class="app-shell">
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <div>
+              <div class="sidebar-title" data-i18n="sidebar.title">Time Series List</div>
+              <div class="sidebar-note" data-i18n="sidebar.note">Fine to coarse - LTF on top</div>
+            </div>
+            <button id="add-series" class="btn primary" data-i18n="action.add">Add</button>
+          </div>
+          <div id="series-list" class="series-list">
+            <div class="series-empty">
+              <div class="empty-title" data-i18n="series.empty.title">No time series yet</div>
+              <div class="empty-desc" data-i18n="series.empty.desc">Click Add to create LTF</div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="main">
+          <div class="plot-card">
+          <div class="plot-toolbar">
+            <div class="plot-title" data-i18n="plot.title">Plot</div>
+            <div class="plot-actions">
+              <div class="select-wrap hierar-constraint-toggle composite-hierar-constraint" id="intersection-wrap">
+                <span class="select-label" data-i18n="plot.composite.label">Composite hierarchy constraint</span>
+                <div class="composite-frame">
+                  <div class="composite-controls">
+                    <label class="toggle-switch">
+                      <input id="hierar-constraint-gate-toggle" type="checkbox" />
+                      <span class="toggle-track"></span>
+                    </label>
+                    <button
+                      id="intersection-toggle"
+                      class="select-button compact"
+                      type="button"
+                      data-i18n="action.setup"
+                    >
+                      Setup
+                    </button>
+                  </div>
+                </div>
+              </div>
+                <label class="select-wrap" id="plot-mode-wrap">
+                  <span class="select-label" data-i18n="plot.mode.label">Plot Mode</span>
+                  <select id="plot-mode" disabled>
+                    <option value="ltf" data-i18n="plot.mode.ltf">LTF only</option>
+                    <option value="parallel" data-i18n="plot.mode.parallel">Parallel series</option>
+                    <option value="stitched" data-i18n="plot.mode.stitched">Stitched series</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+            <div class="plot-area">
+              <div id="plot-empty" class="plot-empty">
+                <div class="empty-badge" data-i18n="plot.empty.title">No data</div>
+                <div class="empty-desc" data-i18n="plot.empty.desc">Add a series to see the plot</div>
+              </div>
+              <div id="plot" class="plot-canvas"></div>
+            </div>
+          </div>
+          <div class="legend-card">
+            <div class="legend-title" data-i18n="legend.title">Legend</div>
+            <div id="legend-list" class="legend-list">
+              <div class="legend-empty" data-i18n="legend.empty">No elements yet</div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div id="wizard-overlay" class="wizard-overlay hidden">
+      <div class="wizard">
+        <div class="wizard-header">
+          <div>
+            <div id="wizard-title" class="wizard-title" data-i18n="wizard.title.series">Configure time series</div>
+          </div>
+          <button id="wizard-close" class="icon-btn">×</button>
+        </div>
+        <div class="wizard-tabs">
+          <button class="tab-btn active" data-step="source" data-i18n="wizard.tab.source">Source</button>
+          <button class="tab-btn" data-step="scale" data-i18n="wizard.tab.scale">Scale</button>
+          <button class="tab-btn" data-step="signals" data-i18n="wizard.tab.signals">Signals</button>
+          <button class="tab-btn" data-step="viz" data-i18n="wizard.tab.viz">Viz</button>
+        </div>
+        <div class="wizard-body">
+          <section id="step-source" class="wizard-step active">
+            <div class="step-title" data-i18n="wizard.source.title">Data source</div>
+            <div class="step-grid">
+              <div class="step-panel">
+                <div class="panel-title" data-i18n="wizard.source.file.title">Data file</div>
+                <div id="source-upload" class="upload-box">
+                  <div class="upload-desc">
+                    <div class="upload-title" data-i18n="wizard.source.file.upload">Upload</div>
+                    <div class="upload-note" data-i18n="wizard.source.file.note">
+                      CSV / XLSX with time and value columns
+                    </div>
+                  </div>
+                  <label class="btn ghost file-trigger">
+                    <span data-i18n="wizard.source.file.choose">Choose file</span>
+                    <input id="file-input" type="file" accept=".csv,.xlsx,.xls" />
+                  </label>
+                </div>
+                <div id="source-existing" class="source-existing hidden">
+                  <div class="source-existing-title" data-i18n="wizard.source.existing.title">
+                    Used data files
+                  </div>
+                  <div id="source-existing-list" class="source-existing-list"></div>
+                  <div class="source-existing-actions">
+                    <button
+                      id="source-pick-other"
+                      class="btn ghost"
+                      type="button"
+                      data-i18n="wizard.source.existing.pickOther"
+                    >
+                      Choose another file
+                    </button>
+                  </div>
+                </div>
+                <div id="source-summary" class="source-summary hidden">
+                  <div class="summary-row">
+                    <span class="summary-label" data-i18n="wizard.source.summary.file">File</span>
+                    <span id="source-file" class="summary-value">-</span>
+                  </div>
+                  <div class="summary-row">
+                    <span class="summary-label" data-i18n="wizard.source.summary.columns">Columns</span>
+                    <span id="source-columns" class="summary-value">-</span>
+                  </div>
+                  <div class="summary-row">
+                    <span class="summary-label" data-i18n="wizard.source.summary.numeric">Value column</span>
+                    <span id="source-numeric" class="summary-value">-</span>
+                  </div>
+                </div>
+                <div id="source-actions" class="source-actions hidden">
+                  <button id="source-delete" class="btn ghost danger" type="button" data-i18n="action.delete">
+                    Delete
+                  </button>
+                  <button id="source-replace" class="btn ghost" type="button" data-i18n="action.replace">
+                    Replace
+                  </button>
+                </div>
+                <div id="source-error" class="error-box hidden"></div>
+              </div>
+              <div class="step-panel">
+                <div class="panel-title-row">
+                  <div class="panel-title" data-i18n="wizard.source.mapping.title">Time column mapping</div>
+                  <button
+                    id="source-reset-mapping"
+                    class="btn ghost small"
+                    type="button"
+                    data-i18n="wizard.source.mapping.reset"
+                  >
+                    Reset mapping
+                  </button>
+                </div>
+                <div class="mapping-grid">
+                  <label>
+                    <span data-i18n="wizard.source.mapping.year">Year</span>
+                    <select id="map-year"></select>
+                  </label>
+                  <label>
+                    <span data-i18n="wizard.source.mapping.month">Month</span>
+                    <select id="map-month"></select>
+                  </label>
+                  <label>
+                    <span data-i18n="wizard.source.mapping.day">Day</span>
+                    <select id="map-day"></select>
+                  </label>
+                  <label>
+                    <span data-i18n="wizard.source.mapping.hour">Hour</span>
+                    <select id="map-hour"></select>
+                  </label>
+                  <label>
+                    <span data-i18n="wizard.source.mapping.minute">Minute</span>
+                    <select id="map-minute"></select>
+                  </label>
+                  <label>
+                    <span data-i18n="wizard.source.mapping.second">Second</span>
+                    <select id="map-second"></select>
+                  </label>
+                </div>
+                <div class="panel-title" data-i18n="wizard.source.value.title">Value column</div>
+                <select id="value-column" class="full-select"></select>
+                <div class="helper-text" data-i18n="wizard.source.value.helper">
+                  Leave empty if a time unit is missing
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="step-scale" class="wizard-step">
+            <div class="step-title" data-i18n="wizard.scale.title">Time scale</div>
+            <div class="step-grid">
+              <div class="step-panel">
+                <div class="panel-title" data-i18n="wizard.scale.definition.title">Scale definition</div>
+                <div class="scale-input">
+                  <input
+                    id="scale-value"
+                    type="number"
+                    min="1"
+                    placeholder="Integer"
+                    data-i18n="wizard.scale.definition.placeholder"
+                    data-i18n-attr="placeholder"
+                  />
+                  <select id="scale-units" class="scale-unit-select"></select>
+                </div>
+                <div id="scale-error" class="error-box hidden"></div>
+              </div>
+              <div class="step-panel">
+                <div class="panel-title" data-i18n="wizard.scale.aggregate.title">Aggregation method</div>
+                <select id="aggregate-method" class="full-select">
+                  <option value="mean" data-i18n="wizard.scale.aggregate.mean">Mean</option>
+                  <option value="min" data-i18n="wizard.scale.aggregate.min">Min</option>
+                  <option value="max" data-i18n="wizard.scale.aggregate.max">Max</option>
+                  <option value="median" data-i18n="wizard.scale.aggregate.median">Median</option>
+                  <option value="percentile" data-i18n="wizard.scale.aggregate.percentile">Percentile</option>
+                </select>
+                <div id="percentile-wrap" class="percentile-wrap hidden">
+                  <label>
+                    <span data-i18n="wizard.scale.aggregate.percentile.label">Percentile</span>
+                    <input id="aggregate-percentile" type="number" min="0" max="100" value="50" />
+                  </label>
+                </div>
+                <div class="helper-text" data-i18n="wizard.scale.helper.unique">
+                  Scale must be unique
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="step-signals" class="wizard-step">
+            <div class="step-title" data-i18n="wizard.signals.title">Signal setup</div>
+            <div class="signals-layout">
+              <div class="step-panel signals-tree-panel">
+                <div class="panel-title-row">
+                  <div class="panel-title" data-i18n="wizard.signals.list.title">Signal list</div>
+                  <div class="panel-actions">
+                    <button id="signal-add" class="btn primary" data-i18n="action.add">Add</button>
+                    <button
+                      id="collapse-all-signals"
+                      class="btn ghost"
+                      data-i18n="wizard.signals.action.collapseAll"
+                    >
+                      Collapse all
+                    </button>
+                  </div>
+                </div>
+                <div id="signal-tree" class="signal-tree-list"></div>
+                <div class="signal-tree-footer">
+                  <label class="select-wrap">
+                    <span class="select-label" data-i18n="wizard.signals.down.label">
+                      Downstream hierarchy constraint signal
+                    </span>
+                    <select id="down-signal-select"></select>
+                  </label>
+                  <div id="down-signal-note" class="helper-text"></div>
+                  <div id="signal-warning" class="error-box hidden"></div>
+                </div>
+              </div>
+
+              <div class="step-panel signals-detail-panel">
+                <div class="panel-title-row">
+                  <button
+                    id="signal-back"
+                    class="icon-btn hidden"
+                    type="button"
+                    aria-label="Back"
+                    data-i18n="action.back"
+                    data-i18n-attr="aria-label"
+                  >
+                    ←
+                  </button>
+                  <div class="panel-title" data-i18n="wizard.signals.params.title">Signal parameters</div>
+                </div>
+                <div id="signal-detail" class="signal-detail"></div>
+                <div id="signal-detail-empty" class="helper-text" data-i18n="wizard.signals.params.empty">
+                  Select a signal on the left
+                </div>
+                <div class="signal-detail-footer">
+                  <div id="signal-template-hint" class="helper-text"></div>
+                  <button
+                    id="signal-template-save"
+                    class="btn ghost small"
+                    type="button"
+                    data-i18n="wizard.signals.template.save"
+                  >
+                    Save template
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="step-viz" class="wizard-step">
+            <div class="step-title" data-i18n="wizard.viz.title">Visualization</div>
+            <div class="step-grid">
+              <div class="step-panel">
+                <div class="panel-title" data-i18n="wizard.viz.list.title">Graphic elements</div>
+                <div id="viz-elements" class="viz-list"></div>
+                <button id="add-viz-element" class="btn ghost" data-i18n="wizard.viz.action.add">
+                  + Add element
+                </button>
+                <div class="helper-text" data-i18n="wizard.viz.helper.reorder">
+                  Drag to reorder drawing priority
+                </div>
+              </div>
+              <div class="step-panel" id="hierar-constraint-panel">
+                <div class="panel-title" data-i18n="wizard.viz.hierarchyConstraint.title">Hierarchy constraint signal visualization</div>
+                <div id="hierar-constraint-controls" class="hierar-constraint-controls"></div>
+                <div id="hierar-constraint-note" class="helper-text"></div>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="wizard-footer">
+          <button id="wizard-prev" class="btn ghost" data-i18n="wizard.footer.prev">Previous</button>
+          <div class="wizard-status" id="wizard-status" data-i18n="wizard.footer.status.incomplete">Incomplete</div>
+          <button id="wizard-next" class="btn primary" data-i18n="wizard.footer.next">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="intersection-overlay" class="wizard-overlay hidden intersection-overlay">
+      <div class="wizard intersection-modal">
+        <div class="wizard-header">
+          <div>
+            <div class="wizard-title" data-i18n="intersection.title">Composite hierarchy constraint setup</div>
+            <div class="wizard-subtitle" data-i18n="intersection.subtitle">
+              Select hierarchy constraint signals and configure plotting and export
+            </div>
+          </div>
+          <button id="intersection-close" class="icon-btn">×</button>
+        </div>
+        <div class="intersection-body">
+          <div class="step-panel intersection-panel">
+            <div class="panel-title-row">
+              <div class="panel-title" data-i18n="intersection.signals.title">Hierarchy constraint signal selection</div>
+              <button
+                id="intersection-select-all"
+                class="btn ghost small"
+                type="button"
+                data-i18n="intersection.signals.selectAll"
+              >
+                Select all
+              </button>
+            </div>
+            <div id="intersection-signal-list" class="intersection-signal-list"></div>
+            <div id="intersection-signal-empty" class="export-empty hidden" data-i18n="intersection.signals.empty">
+              No hierarchy constraint signals
+            </div>
+            <div class="helper-text" data-i18n="intersection.signals.helper">
+              If none selected, composite hierarchy constraint won't be generated
+            </div>
+          </div>
+          <div class="step-panel intersection-panel">
+            <div class="panel-title" data-i18n="intersection.plot.title">Plot settings</div>
+            <div class="viz-controls">
+              <div class="viz-field">
+                <div class="viz-field-label" data-i18n="intersection.field.style">Style</div>
+                <select id="intersection-style"></select>
+              </div>
+              <div class="viz-field">
+                <div class="viz-field-label" data-i18n="intersection.field.color">Color</div>
+                <div id="intersection-color-picker"></div>
+              </div>
+              <div class="viz-field">
+                <div class="viz-field-label" data-i18n="intersection.field.opacity">Opacity</div>
+                <input id="intersection-opacity" type="range" min="0" max="1" step="0.05" />
+              </div>
+            </div>
+          </div>
+          <div class="step-panel intersection-panel">
+            <div class="panel-title" data-i18n="intersection.export.title">Save output</div>
+            <div class="intersection-export-body">
+              <div class="export-panel">
+                <div class="panel-title" data-i18n="intersection.export.series.title">Series and signals</div>
+                <div class="export-field">
+                  <label
+                    class="export-label"
+                    for="intersection-export-series"
+                    data-i18n="intersection.export.series.label"
+                  >
+                    Time series
+                  </label>
+                  <select id="intersection-export-series"></select>
+                </div>
+                <div id="intersection-export-signal-list" class="export-signal-list"></div>
+                <div
+                  id="intersection-export-signal-empty"
+                  class="export-empty hidden"
+                  data-i18n="intersection.export.series.empty"
+                >
+                  No signals for this series
+                </div>
+                <div class="helper-text" data-i18n="intersection.export.series.helper">
+                  Composite hierarchy constraint applied by default
+                </div>
+              </div>
+              <div class="export-panel">
+                <div class="panel-title" data-i18n="intersection.export.options.title">Export options</div>
+                <div class="export-toggles">
+                  <div class="export-toggle-row">
+                    <span class="export-toggle-label" data-i18n="intersection.export.options.includeDeps">
+                      Include dependency signals
+                    </span>
+                    <label class="toggle-switch">
+                      <input id="intersection-export-include-deps" type="checkbox" />
+                      <span class="toggle-track"></span>
+                    </label>
+                  </div>
+                  <div class="export-toggle-row">
+                    <span class="export-toggle-label" data-i18n="intersection.export.options.includeValues">
+                      Include value columns
+                    </span>
+                    <label class="toggle-switch">
+                      <input id="intersection-export-include-values" type="checkbox" />
+                      <span class="toggle-track"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="export-panel">
+                <div class="panel-title" data-i18n="intersection.export.save.title">Save settings</div>
+                <div class="export-save-grid">
+                  <div class="export-field">
+                    <label
+                      class="export-label"
+                      for="intersection-export-directory"
+                      data-i18n="intersection.export.save.directory"
+                    >
+                      Save directory
+                    </label>
+                    <div class="export-path-row">
+                      <input id="intersection-export-directory" type="text" readonly />
+                      <button
+                        id="intersection-export-pick-directory"
+                        class="btn ghost"
+                        type="button"
+                        data-i18n="action.choose"
+                      >
+                        Choose
+                      </button>
+                    </div>
+                  </div>
+                  <div class="export-field">
+                    <label
+                      class="export-label"
+                      for="intersection-export-file-name"
+                      data-i18n="intersection.export.save.fileName"
+                    >
+                      File name
+                    </label>
+                    <input id="intersection-export-file-name" type="text" />
+                  </div>
+                  <div class="export-field">
+                    <label
+                      class="export-label"
+                      for="intersection-export-file-type"
+                      data-i18n="intersection.export.save.fileType"
+                    >
+                      File type
+                    </label>
+                    <select id="intersection-export-file-type">
+                      <option value="csv">CSV</option>
+                      <option value="xlsx">XLSX</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="export-actions">
+                  <button
+                    id="intersection-export-save"
+                    class="btn primary"
+                    type="button"
+                    data-i18n="action.save"
+                  >
+                    Save
+                  </button>
+                  <div id="intersection-export-status" class="export-status"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="export-overlay" class="wizard-overlay hidden">
+      <div class="wizard export-modal">
+        <div class="wizard-header">
+          <div>
+            <div class="wizard-title" data-i18n="export.title">Save signal data</div>
+            <div id="export-subtitle" class="wizard-subtitle"></div>
+          </div>
+          <button id="export-close" class="icon-btn">×</button>
+        </div>
+        <div class="export-body">
+          <div class="step-panel export-panel">
+            <div class="panel-title" data-i18n="export.signals.title">Signal selection</div>
+            <div id="export-signal-list" class="export-signal-list"></div>
+            <div id="export-signal-empty" class="export-empty hidden" data-i18n="export.signals.empty">
+              No signals for this series
+            </div>
+          </div>
+          <div class="step-panel export-panel">
+            <div class="panel-title" data-i18n="export.options.title">Export options</div>
+            <div class="export-toggles">
+              <div class="export-toggle-row">
+                <span class="export-toggle-label" data-i18n="export.options.applyHierarchyConstraint">
+                  Apply hierarchy constraint filter
+                </span>
+                <label class="toggle-switch">
+                  <input id="export-apply-hierar-constraint" type="checkbox" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <div class="export-toggle-row">
+                <span class="export-toggle-label" data-i18n="export.options.includeDeps">
+                  Include dependency signals
+                </span>
+                <label class="toggle-switch">
+                  <input id="export-include-deps" type="checkbox" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <div class="export-toggle-row">
+                <span class="export-toggle-label" data-i18n="export.options.includeValues">
+                  Include value columns
+                </span>
+                <label class="toggle-switch">
+                  <input id="export-include-values" type="checkbox" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="step-panel export-panel">
+            <div class="panel-title" data-i18n="export.save.title">Save settings</div>
+            <div class="export-save-grid">
+              <div class="export-field">
+                <label class="export-label" for="export-directory" data-i18n="export.save.directory">
+                  Save directory
+                </label>
+                <div class="export-path-row">
+                  <input id="export-directory" type="text" readonly />
+                  <button id="export-pick-directory" class="btn ghost" type="button" data-i18n="action.choose">
+                    Choose
+                  </button>
+                </div>
+              </div>
+              <div class="export-field">
+                <label class="export-label" for="export-file-name" data-i18n="export.save.fileName">
+                  File name
+                </label>
+                <input id="export-file-name" type="text" />
+              </div>
+              <div class="export-field">
+                <label class="export-label" for="export-file-type" data-i18n="export.save.fileType">
+                  File type
+                </label>
+                <select id="export-file-type">
+                  <option value="csv">CSV</option>
+                  <option value="xlsx">XLSX</option>
+                </select>
+              </div>
+            </div>
+            <div class="export-actions">
+              <button id="export-save" class="btn primary" type="button" data-i18n="action.save">Save</button>
+              <div id="export-status" class="export-status"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="series-menu-portal" class="series-menu-portal hidden">
+      <div id="series-menu-popover" class="series-menu-popover"></div>
+    </div>
+    <div id="template-menu-portal" class="template-menu-portal hidden">
+      <div id="template-menu-popover" class="template-menu-popover"></div>
+    </div>
+
+    <div id="viz-picker" class="picker hidden">
+      <div class="picker-card">
+        <div class="picker-title" data-i18n="picker.viz.title">Add graphic element</div>
+        <div id="viz-picker-options" class="picker-options"></div>
+        <div class="picker-footer">
+          <button id="viz-picker-close" class="btn ghost" data-i18n="action.close">Close</button>
+        </div>
+      </div>
+    </div>
+    <div id="signal-picker" class="picker hidden">
+      <div class="picker-card signal-picker-card">
+        <div id="signal-picker-title" class="picker-title" data-i18n="picker.signal.title">Select signal type</div>
+        <div id="signal-picker-tabs" class="picker-tabs hidden">
+          <button
+            class="picker-tab active"
+            type="button"
+            data-tab="types"
+            data-i18n="picker.signal.tab.types"
+          >
+            Signal types
+          </button>
+          <button class="picker-tab" type="button" data-tab="external" data-i18n="picker.signal.tab.external">
+            External signal
+          </button>
+          <button class="picker-tab" type="button" data-tab="templates" data-i18n="picker.signal.tab.templates">
+            Templates
+          </button>
+        </div>
+        <div id="signal-picker-options" class="picker-options"></div>
+        <input id="signal-template-import-input" class="hidden" type="file" accept=".json" />
+        <div class="picker-footer split">
+          <div id="signal-picker-actions" class="picker-actions hidden">
+            <button
+              id="signal-template-import"
+              class="btn ghost small"
+              type="button"
+              data-i18n="picker.signal.import"
+            >
+              Import templates
+            </button>
+            <div id="signal-template-status" class="helper-text"></div>
+          </div>
+          <button id="signal-picker-close" class="btn ghost" data-i18n="action.close">Close</button>
+        </div>
+      </div>
+    </div>
+    <div id="template-save-modal" class="picker hidden">
+      <div class="picker-card template-save-card">
+        <div id="template-save-title" class="picker-title" data-i18n="picker.template.title">Save template</div>
+        <div class="template-save-body">
+          <label class="template-save-label">
+            <span data-i18n="picker.template.name">Template name</span>
+            <input id="template-save-name" type="text" />
+          </label>
+          <div id="template-save-note" class="helper-text"></div>
+        </div>
+        <div class="template-save-actions">
+          <button id="template-save-cancel" class="btn ghost" type="button" data-i18n="action.cancel">
+            Cancel
+          </button>
+          <button id="template-save-confirm" class="btn primary" type="button" data-i18n="action.save">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="toast" class="toast hidden">
+      <div id="toast-message" class="toast-message"></div>
+      <button id="toast-close" class="toast-close" type="button">×</button>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script type="application/json" id="i18n-data">
+      {
+        "en": {
+          "page.title": "Hiera-TF Time Series Console",
+          "header.subtitle": "Multi-timeframe hierarchy signal visualization",
+          "lang.switch.label": "Select language",
+          "sidebar.title": "Time Series List",
+          "sidebar.note": "Fine to coarse - LTF on top",
+          "action.add": "Add",
+          "action.setup": "Setup",
+          "action.configure": "Configure",
+          "action.save": "Save",
+          "action.delete": "Delete",
+          "action.replace": "Replace",
+          "action.choose": "Choose",
+          "action.use": "Use",
+          "action.rename": "Rename",
+          "action.close": "Close",
+          "action.cancel": "Cancel",
+          "action.collapse": "Collapse",
+          "action.expand": "Expand",
+          "action.back": "Back",
+          "plot.title": "Plot",
+          "plot.composite.label": "Hierar. constraint",
+          "plot.mode.label": "Plot Mode",
+          "plot.mode.ltf": "LTF only",
+          "plot.mode.parallel": "Parallel series",
+          "plot.mode.stitched": "Stitched series",
+          "plot.empty.title": "No data",
+          "plot.empty.desc": "Add a series to see the plot",
+          "legend.title": "Legend",
+          "legend.empty": "No elements yet",
+          "legend.traceFallback": "Trace {index}",
+          "legend.overlayFallback": "Overlay",
+          "wizard.title.series": "Configure time series",
+          "wizard.tab.source": "Source",
+          "wizard.tab.scale": "Scale",
+          "wizard.tab.signals": "Signals",
+          "wizard.tab.viz": "Viz",
+          "wizard.source.title": "Data source",
+          "wizard.source.file.title": "Data file",
+          "wizard.source.file.upload": "Upload",
+          "wizard.source.file.note": "CSV / XLSX with time and value columns",
+          "wizard.source.file.choose": "Choose file",
+          "wizard.source.existing.title": "Used data files",
+          "wizard.source.existing.pickOther": "Choose another file",
+          "wizard.source.summary.file": "File",
+          "wizard.source.summary.columns": "Columns",
+          "wizard.source.summary.numeric": "Value column",
+          "wizard.source.mapping.title": "Time column mapping",
+          "wizard.source.mapping.reset": "Reset mapping",
+          "wizard.source.mapping.year": "Year",
+          "wizard.source.mapping.month": "Month",
+          "wizard.source.mapping.day": "Day",
+          "wizard.source.mapping.hour": "Hour",
+          "wizard.source.mapping.minute": "Minute",
+          "wizard.source.mapping.second": "Second",
+          "wizard.source.value.title": "Value column",
+          "wizard.source.value.helper": "Leave empty if a time unit is missing",
+          "wizard.scale.title": "Time scale",
+          "wizard.scale.definition.title": "Scale definition",
+          "wizard.scale.definition.placeholder": "Integer",
+          "wizard.scale.aggregate.title": "Aggregation method",
+          "wizard.scale.aggregate.mean": "Mean",
+          "wizard.scale.aggregate.min": "Min",
+          "wizard.scale.aggregate.max": "Max",
+          "wizard.scale.aggregate.median": "Median",
+          "wizard.scale.aggregate.percentile": "Percentile",
+          "wizard.scale.aggregate.percentile.label": "Percentile",
+          "wizard.scale.helper.unique": "Scale must be unique",
+          "wizard.signals.title": "Signal setup",
+          "wizard.signals.list.title": "Signal list",
+          "wizard.signals.action.collapseAll": "Collapse all",
+          "wizard.signals.down.label": "Downstream hierarchy constraint signal",
+          "wizard.signals.params.title": "Signal parameters",
+          "wizard.signals.params.empty": "Select a signal on the left",
+          "wizard.signals.template.save": "Save template",
+          "wizard.viz.title": "Visualization",
+          "wizard.viz.list.title": "Graphic elements",
+          "wizard.viz.action.add": "+ Add element",
+          "wizard.viz.helper.reorder": "Drag to reorder drawing priority",
+          "wizard.viz.hierarchyConstraint.title": "Hierarchy constraint signal visualization",
+          "wizard.footer.prev": "Previous",
+          "wizard.footer.next": "Next",
+          "wizard.footer.finish": "Finish",
+          "wizard.footer.status.incomplete": "Incomplete",
+          "wizard.status.complete": "Complete",
+          "wizard.status.incomplete": "Incomplete",
+          "intersection.title": "Composite hierarchy constraint setup",
+          "intersection.subtitle": "Select hierarchy constraint signals and configure plotting and export",
+          "intersection.signals.title": "Hierarchy constraint signal selection",
+          "intersection.signals.selectAll": "Select all",
+          "intersection.signals.empty": "No hierarchy constraint signals",
+          "intersection.signals.helper": "If none selected, composite hierarchy constraint won't be generated",
+          "intersection.plot.title": "Plot settings",
+          "intersection.field.style": "Style",
+          "intersection.field.color": "Color",
+          "intersection.field.opacity": "Opacity",
+          "intersection.export.title": "Save output",
+          "intersection.export.series.title": "Series and signals",
+          "intersection.export.series.label": "Time series",
+          "intersection.export.series.empty": "No signals for this series",
+          "intersection.export.series.helper": "Composite hierarchy constraint applied by default",
+          "intersection.export.options.title": "Export options",
+          "intersection.export.options.includeDeps": "Include dependency signals",
+          "intersection.export.options.includeValues": "Include value columns",
+          "intersection.export.save.title": "Save settings",
+          "intersection.export.save.directory": "Save directory",
+          "intersection.export.save.fileName": "File name",
+          "intersection.export.save.fileType": "File type",
+          "export.title": "Save signal data",
+          "export.subtitle": "Time series: {name}",
+          "export.signals.title": "Signal selection",
+          "export.signals.empty": "No signals for this series",
+          "export.options.title": "Export options",
+          "export.options.applyHierarchyConstraint": "Apply hierarchy constraint filter",
+          "export.options.includeDeps": "Include dependency signals",
+          "export.options.includeValues": "Include value columns",
+          "export.save.title": "Save settings",
+          "export.save.directory": "Save directory",
+          "export.save.fileName": "File name",
+          "export.save.fileType": "File type",
+          "picker.viz.title": "Add graphic element",
+          "picker.signal.title": "Select signal type",
+          "picker.signal.tab.types": "Signal types",
+          "picker.signal.tab.external": "External signal",
+          "picker.signal.tab.templates": "Templates",
+          "picker.signal.import": "Import templates",
+          "externalSignal.file.title": "External signal file",
+          "externalSignal.file.note": "CSV / XLSX with time columns and a signal column",
+          "externalSignal.file.choose": "Choose file",
+          "externalSignal.mapping.title": "Time column mapping",
+          "externalSignal.signal.title": "Signal column",
+          "externalSignal.signal.trueValue": "True value",
+          "externalSignal.signal.trueValue.helper": "Value representing TRUE in the signal column",
+          "externalSignal.action.bind": "Bind signal",
+          "externalSignal.status.ready": "Ready to bind to current time series",
+          "externalSignal.status.bound": "External signal added",
+          "externalSignal.error.seriesIncomplete": "Complete source and scale before binding external signals.",
+          "externalSignal.error.noFile": "Choose a data file first.",
+          "externalSignal.error.emptyOrInvalid": "File is empty or invalid.",
+          "externalSignal.error.readFailed": "Failed to read external signal file.",
+          "externalSignal.error.insufficientTimeColumns": "Time columns are insufficient. Need {units}.",
+          "externalSignal.error.noSignalColumn": "Select a signal column.",
+          "externalSignal.error.missingTimeValues": "Some rows are missing required time values.",
+          "externalSignal.error.duplicateTimestamps": "Duplicate timestamps found in external file.",
+          "externalSignal.error.scaleMismatch": "External timestamps must align with the current scale.",
+          "externalSignal.error.timeMismatch": "External timestamps must match the current series exactly.",
+          "externalSignal.error.trueValueRequired": "Enter a true value for the signal column.",
+          "externalSignal.summary.file": "File",
+          "externalSignal.summary.column": "Signal column",
+          "externalSignal.summary.trueValue": "True value",
+          "externalSignal.summary.status": "Status",
+          "externalSignal.status.valid": "Valid",
+          "externalSignal.status.invalid": "Invalid",
+          "externalSignal.detail.note": "External signals are bound from a file and cannot be edited here.",
+          "picker.template.title": "Save template",
+          "picker.template.name": "Template name",
+          "series.empty.title": "No time series yet",
+          "series.empty.desc": "Click Add to create LTF",
+          "series.badge.incomplete": "Incomplete",
+          "series.scale.unset": "Scale not set",
+          "series.defaultName": "Time series",
+          "scale.selectUnit": "Select unit",
+          "scale.error.duplicate": "This time scale already exists",
+          "source.existing.empty": "No data files in use",
+          "source.existing.meta": "Source: {name}",
+          "source.existing.columns": "Columns: {columns}",
+          "source.error.emptyOrInvalid": "Data file is empty or cannot be parsed",
+          "source.error.noNumeric": "No valid numeric columns found",
+          "source.error.insufficientTimeColumns": "Time columns insufficient: need at least 3 of {units}",
+          "source.error.readFailed": "Failed to read data file. Check the format.",
+          "signal.empty": "No signals yet",
+          "signal.param.type": "Signal type",
+          "signal.dependency.suffix": "(dependency signal)",
+          "signal.dependency.remaining": "{label} - {remaining}/{requiredCount} remaining",
+          "signal.dependency.added": "{label} - added",
+          "signal.dependency.need": "Add {remaining}/{requiredCount} dependency signals",
+          "signal.dependency.add": "+ Add dependency signal",
+          "signal.picker.dependencyParam": "Select dependency parameter",
+          "signal.picker.dependencyEmpty": "No dependencies available",
+          "signal.picker.dependencyType": "Select dependency signal type",
+          "signal.picker.type": "Select signal type",
+          "signal.picker.dependencyTemplate": "Select dependency signal template",
+          "signal.picker.template": "Select signal template",
+          "signal.down.note.noSignals": "Add signals before selecting a downstream hierarchy constraint signal",
+          "signal.down.note.ltfSelected": "LTF selection won't take effect; it is for preset only",
+          "signal.down.note.ltfOptional": "LTF does not require a selection; you can preselect",
+          "signal.down.note.select": "Select a downstream hierarchy constraint signal",
+          "signal.down.note.selected": "Downstream hierarchy constraint signal selected",
+          "signal.warning.duplicate": "Signals with identical definitions and aliases found. Adjust alias or parameters/dependencies to keep them unique.",
+          "signal.viz.label": "Signal - {name}",
+          "signal.type.fallback": "signal",
+          "signal.option.gt": ">",
+          "signal.option.lt": "<",
+          "signal.option.mean": "Mean",
+          "signal.option.min": "Min",
+          "signal.option.max": "Max",
+          "signal.option.median": "Median",
+          "signal.option.percentile": "Percentile",
+          "signal.option.fast": "Fast",
+          "signal.option.slow": "Slow",
+          "bool.true": "True",
+          "bool.false": "False",
+          "viz.empty": "No elements yet",
+          "viz.element.line": "Time series line",
+          "viz.element.raw": "Raw time series",
+          "viz.field.color": "Color",
+          "viz.field.style": "Style",
+          "viz.field.size": "Size",
+          "viz.field.opacity": "Opacity",
+          "viz.lineStyle.solid": "Solid",
+          "viz.lineStyle.dashed": "Dashed",
+          "viz.lineStyle.dotted": "Dotted",
+          "viz.marker.circle": "Circle",
+          "viz.marker.square": "Square",
+          "viz.marker.diamond": "Diamond",
+          "viz.marker.cross": "Cross",
+          "color.aria": "Color {color}",
+          "hierarchyConstraint.note.selectDownSignal": "Select a downstream hierarchy constraint signal in Signals",
+          "hierarchyConstraint.note.current": "Current downstream hierarchy constraint signal: {name}",
+          "hierarchyConstraint.legend.downstream": "{name} - Downstream hierarchy constraint",
+          "hierarchyConstraint.legend.composite": "Composite hierarchy constraint",
+          "hierarchyConstraint.style.background": "Background",
+          "hierarchyConstraint.style.solid": "Solid",
+          "hierarchyConstraint.style.dashed": "Dashed",
+          "intersection.style.none": "Do not draw",
+          "intersection.style.background": "Background",
+          "intersection.style.solid": "Solid vertical line",
+          "intersection.style.dashed": "Dashed vertical line",
+          "export.directory.downloads": "Downloads",
+          "export.directory.unsupported": "Directory selection is not supported; saving to Downloads.",
+          "export.directory.selected": "Directory selected",
+          "export.directory.failed": "Failed to select directory.",
+          "export.error.noSeries": "Time series not found.",
+          "export.error.noSignalsSelected": "Select at least one signal.",
+          "export.error.libraryNotReady": "Signal library is not ready.",
+          "export.status.generating": "Generating data...",
+          "export.error.noData": "No data to save.",
+          "export.error.xlsxMissing": "XLSX is not loaded.",
+          "export.status.saved": "Saved.",
+          "export.error.saveFailed": "Save failed. Check signal definitions or data.",
+          "export.defaultFileName": "series",
+          "export.defaultSuffix": "signals",
+          "export.sheetName": "signals",
+          "template.empty": "No templates yet. Save or import one first.",
+          "template.menu.label": "Template actions",
+          "template.summary.rootNone": "Root signal: -",
+          "template.summary.root": "Root signal: {type} - Nodes {count}",
+          "template.hint.selectRoot": "Select a root signal to save a template.",
+          "template.hint.reuse": "Saved templates can be reused in Add / Templates.",
+          "template.hint.rootOnly": "Only root signals can be saved as templates.",
+          "template.hint.external": "Templates cannot include external signals.",
+          "template.save.title": "Save signal template",
+          "template.save.title.rename": "Rename template",
+          "template.save.note.create": "After saving, you can add it from Add / Templates.",
+          "template.save.note.rename": "Only the template name changes; signal content stays the same.",
+          "template.error.nameRequired": "Enter a template name.",
+          "template.error.noSeries": "Time series not found.",
+          "template.error.noRoot": "Root signal not found.",
+          "template.error.rootOnly": "Only root signals can be saved as templates.",
+          "template.error.external": "Templates cannot include external signals.",
+          "template.error.notFound": "Template not found.",
+          "template.error.nameExists": "Template name already exists.",
+          "template.save.overwrite": "Overwrote duplicate template and saved to library.",
+          "template.save.saved": "Saved to template library.",
+          "template.status.renamed": "Template renamed.",
+          "template.status.deleted": "Template deleted.",
+          "template.confirm.delete": "Delete template \"{name}\"?",
+          "template.import.loading": "Importing templates...",
+          "template.import.none": "No valid templates found.",
+          "template.import.added": "Imported {count} templates",
+          "template.import.skipped": ", skipped {count} duplicates",
+          "template.import.failed": ", {count} files failed to parse",
+          "template.import.externalSkipped": " Skipped {count} external templates.",
+          "template.import.ending": ".",
+          "template.file.defaultName": "signal-template",
+          "template.file.saved": "File saved. Confirm it's in apps/ui-static/templates/.",
+          "template.file.cancelled": "File save cancelled.",
+          "template.file.downloaded": "File downloaded. Move it into apps/ui-static/templates/.",
+          "template.file.failed": "File save failed.",
+          "time.year": "Year",
+          "time.month": "Month",
+          "time.day": "Day",
+          "time.hour": "Hour",
+          "time.minute": "Minute",
+          "time.second": "Second"
+        },
+        "zh": {
+          "page.title": "Hiera-TF 时间序列控制台",
+          "header.subtitle": "多时间序列层级信号可视化",
+          "lang.switch.label": "语言切换",
+          "sidebar.title": "时间序列列表",
+          "sidebar.note": "从细到粗 · LTF 置顶",
+          "action.add": "添加",
+          "action.setup": "配置",
+          "action.configure": "配置",
+          "action.save": "保存",
+          "action.delete": "删除",
+          "action.replace": "替换",
+          "action.choose": "选择",
+          "action.use": "使用",
+          "action.rename": "重命名",
+          "action.close": "关闭",
+          "action.cancel": "取消",
+          "action.collapse": "折叠",
+          "action.expand": "展开",
+          "action.back": "返回",
+          "plot.title": "图像绘制",
+          "plot.composite.label": "综合层级约束",
+          "plot.mode.label": "绘图模式",
+          "plot.mode.ltf": "仅绘制 LTF",
+          "plot.mode.parallel": "多时间序列平行",
+          "plot.mode.stitched": "多时间序列拼接",
+          "plot.empty.title": "暂无数据",
+          "plot.empty.desc": "添加时间序列后，这里会显示图像",
+          "legend.title": "图例",
+          "legend.empty": "等待图形元素",
+          "legend.traceFallback": "轨迹 {index}",
+          "legend.overlayFallback": "叠加层",
+          "wizard.title.series": "配置时间序列",
+          "wizard.tab.source": "数据源",
+          "wizard.tab.scale": "时间尺度",
+          "wizard.tab.signals": "信号",
+          "wizard.tab.viz": "可视化",
+          "wizard.source.title": "数据源设置",
+          "wizard.source.file.title": "数据文件",
+          "wizard.source.file.upload": "上传",
+          "wizard.source.file.note": "CSV / XLSX，需包含时间列与数值列",
+          "wizard.source.file.choose": "选择文件",
+          "wizard.source.existing.title": "已使用数据文件",
+          "wizard.source.existing.pickOther": "选择其他文件",
+          "wizard.source.summary.file": "文件",
+          "wizard.source.summary.columns": "列数",
+          "wizard.source.summary.numeric": "数值列",
+          "wizard.source.mapping.title": "时间列对照",
+          "wizard.source.mapping.reset": "重置映射",
+          "wizard.source.mapping.year": "年",
+          "wizard.source.mapping.month": "月",
+          "wizard.source.mapping.day": "日",
+          "wizard.source.mapping.hour": "小时",
+          "wizard.source.mapping.minute": "分钟",
+          "wizard.source.mapping.second": "秒",
+          "wizard.source.value.title": "数值列选择",
+          "wizard.source.value.helper": "若某时间单位不存在可留空",
+          "wizard.scale.title": "时间尺度设置",
+          "wizard.scale.definition.title": "尺度定义",
+          "wizard.scale.definition.placeholder": "整数",
+          "wizard.scale.aggregate.title": "聚合方法",
+          "wizard.scale.aggregate.mean": "均值",
+          "wizard.scale.aggregate.min": "最小值",
+          "wizard.scale.aggregate.max": "最大值",
+          "wizard.scale.aggregate.median": "中位数",
+          "wizard.scale.aggregate.percentile": "百分位",
+          "wizard.scale.aggregate.percentile.label": "百分位",
+          "wizard.scale.helper.unique": "时间尺度不能与已存在的重复",
+          "wizard.signals.title": "信号设置",
+          "wizard.signals.list.title": "信号列表",
+          "wizard.signals.action.collapseAll": "一键折叠",
+          "wizard.signals.down.label": "向下层级约束信号",
+          "wizard.signals.params.title": "信号参数",
+          "wizard.signals.params.empty": "请选择左侧信号",
+          "wizard.signals.template.save": "保存模板",
+          "wizard.viz.title": "可视化设置",
+          "wizard.viz.list.title": "图形元素列表",
+          "wizard.viz.action.add": "+ 添加图形元素",
+          "wizard.viz.helper.reorder": "拖拽排序决定绘制优先级",
+          "wizard.viz.hierarchyConstraint.title": "层级约束信号可视化",
+          "wizard.footer.prev": "上一步",
+          "wizard.footer.next": "下一步",
+          "wizard.footer.finish": "完成",
+          "wizard.footer.status.incomplete": "未完成",
+          "wizard.status.complete": "完整",
+          "wizard.status.incomplete": "未完成",
+          "intersection.title": "综合层级约束配置",
+          "intersection.subtitle": "选择有效信号并配置绘图与保存输出",
+          "intersection.signals.title": "有效信号选择",
+          "intersection.signals.selectAll": "选择全部",
+          "intersection.signals.empty": "暂无层级约束信号",
+          "intersection.signals.helper": "不选择则不生成综合层级约束信号",
+          "intersection.plot.title": "绘图设置",
+          "intersection.field.style": "样式",
+          "intersection.field.color": "颜色",
+          "intersection.field.opacity": "透明度",
+          "intersection.export.title": "保存输出",
+          "intersection.export.series.title": "时间序列与信号",
+          "intersection.export.series.label": "时间序列",
+          "intersection.export.series.empty": "当前时间序列没有信号",
+          "intersection.export.series.helper": "默认应用综合层级约束",
+          "intersection.export.options.title": "导出选项",
+          "intersection.export.options.includeDeps": "保存依赖信号",
+          "intersection.export.options.includeValues": "保存数值列",
+          "intersection.export.save.title": "保存设置",
+          "intersection.export.save.directory": "保存目录",
+          "intersection.export.save.fileName": "文件名称",
+          "intersection.export.save.fileType": "文件类型",
+          "export.title": "保存信号数据",
+          "export.subtitle": "时间序列：{name}",
+          "export.signals.title": "信号选择",
+          "export.signals.empty": "当前时间序列没有信号",
+          "export.options.title": "导出选项",
+          "export.options.applyHierarchyConstraint": "应用层级约束",
+          "export.options.includeDeps": "保存依赖信号",
+          "export.options.includeValues": "保存数值列",
+          "export.save.title": "保存设置",
+          "export.save.directory": "保存目录",
+          "export.save.fileName": "文件名称",
+          "export.save.fileType": "文件类型",
+          "picker.viz.title": "添加图形元素",
+          "picker.signal.title": "选择信号类型",
+          "picker.signal.tab.types": "信号类型",
+          "picker.signal.tab.external": "外部信号",
+          "picker.signal.tab.templates": "模板",
+          "picker.signal.import": "导入模板",
+          "externalSignal.file.title": "外部信号文件",
+          "externalSignal.file.note": "包含时间列与信号列的 CSV / XLSX",
+          "externalSignal.file.choose": "选择文件",
+          "externalSignal.mapping.title": "时间列对照",
+          "externalSignal.signal.title": "信号列选择",
+          "externalSignal.signal.trueValue": "True 值",
+          "externalSignal.signal.trueValue.helper": "该列中代表信号为 true 的数值",
+          "externalSignal.action.bind": "绑定信号",
+          "externalSignal.status.ready": "可绑定到当前时间序列",
+          "externalSignal.status.bound": "外部信号已添加",
+          "externalSignal.error.seriesIncomplete": "请先完成 Source 与 Scale 设置。",
+          "externalSignal.error.noFile": "请先选择数据文件。",
+          "externalSignal.error.emptyOrInvalid": "文件为空或无效。",
+          "externalSignal.error.readFailed": "外部信号文件读取失败。",
+          "externalSignal.error.insufficientTimeColumns": "时间列不足，需要 {units}。",
+          "externalSignal.error.noSignalColumn": "请选择信号列。",
+          "externalSignal.error.missingTimeValues": "部分行缺少必要的时间值。",
+          "externalSignal.error.duplicateTimestamps": "外部文件存在重复时间点。",
+          "externalSignal.error.scaleMismatch": "外部时间点未对齐当前时间尺度。",
+          "externalSignal.error.timeMismatch": "外部时间点必须与当前序列完全一致。",
+          "externalSignal.error.trueValueRequired": "请填写信号列的 true 值。",
+          "externalSignal.summary.file": "文件",
+          "externalSignal.summary.column": "信号列",
+          "externalSignal.summary.trueValue": "True 值",
+          "externalSignal.summary.status": "状态",
+          "externalSignal.status.valid": "有效",
+          "externalSignal.status.invalid": "无效",
+          "externalSignal.detail.note": "外部信号来自文件绑定，此处不支持编辑。",
+          "picker.template.title": "保存信号模板",
+          "picker.template.name": "模板名称",
+          "series.empty.title": "还没有时间序列",
+          "series.empty.desc": "点击 添加 开始创建 LTF",
+          "series.badge.incomplete": "未完成",
+          "series.scale.unset": "未设置尺度",
+          "series.defaultName": "时间序列",
+          "scale.selectUnit": "选择单位",
+          "scale.error.duplicate": "该时间尺度已存在",
+          "source.existing.empty": "暂无已使用的数据文件",
+          "source.existing.meta": "来源：{name}",
+          "source.existing.columns": "列名：{columns}",
+          "source.error.emptyOrInvalid": "数据文件为空或无法解析",
+          "source.error.noNumeric": "数据文件缺少有效数据列",
+          "source.error.insufficientTimeColumns": "时间列不足：至少需要 {units}",
+          "source.error.readFailed": "数据文件读取失败，请检查格式",
+          "signal.empty": "暂无信号",
+          "signal.param.type": "信号类型",
+          "signal.dependency.suffix": "（依赖信号）",
+          "signal.dependency.remaining": "{label} · 还需{remaining}/{requiredCount}",
+          "signal.dependency.added": "{label} · 已添加",
+          "signal.dependency.need": "还需添加{remaining}/{requiredCount}个依赖信号",
+          "signal.dependency.add": "+ 添加依赖信号",
+          "signal.picker.dependencyParam": "选择依赖参数",
+          "signal.picker.dependencyEmpty": "暂无可添加依赖",
+          "signal.picker.dependencyType": "选择依赖信号类型",
+          "signal.picker.type": "选择信号类型",
+          "signal.picker.dependencyTemplate": "选择依赖信号模板",
+          "signal.picker.template": "选择信号模板",
+          "signal.down.note.noSignals": "请先添加信号，再选择向下层级约束信号",
+          "signal.down.note.ltfSelected": "LTF 选择不会生效，仅用于预设",
+          "signal.down.note.ltfOptional": "LTF 无需设置，可预先选择",
+          "signal.down.note.select": "请选择一个向下层级约束信号",
+          "signal.down.note.selected": "已选择向下层级约束信号",
+          "signal.warning.duplicate": "存在定义与别名完全相同的信号，请调整别名或参数/依赖以保持唯一。",
+          "signal.viz.label": "信号 · {name}",
+          "signal.type.fallback": "信号",
+          "signal.option.gt": "大于",
+          "signal.option.lt": "小于",
+          "signal.option.mean": "均值",
+          "signal.option.min": "最小值",
+          "signal.option.max": "最大值",
+          "signal.option.median": "中位数",
+          "signal.option.percentile": "百分位",
+          "signal.option.fast": "快",
+          "signal.option.slow": "慢",
+          "bool.true": "是",
+          "bool.false": "否",
+          "viz.empty": "暂无元素",
+          "viz.element.line": "时间序列线条",
+          "viz.element.raw": "时间序列原始数据",
+          "viz.field.color": "颜色",
+          "viz.field.style": "样式",
+          "viz.field.size": "大小",
+          "viz.field.opacity": "透明度",
+          "viz.lineStyle.solid": "实线",
+          "viz.lineStyle.dashed": "虚线",
+          "viz.lineStyle.dotted": "点线",
+          "viz.marker.circle": "圆形",
+          "viz.marker.square": "方形",
+          "viz.marker.diamond": "菱形",
+          "viz.marker.cross": "十字",
+          "color.aria": "颜色 {color}",
+          "hierarchyConstraint.note.selectDownSignal": "请先在 信号 中选择向下层级约束信号",
+          "hierarchyConstraint.note.current": "当前向下层级约束信号：{name}",
+          "hierarchyConstraint.legend.downstream": "{name} · 向下层级约束",
+          "hierarchyConstraint.legend.composite": "综合层级约束",
+          "hierarchyConstraint.style.background": "背景色",
+          "hierarchyConstraint.style.solid": "实线",
+          "hierarchyConstraint.style.dashed": "虚线",
+          "intersection.style.none": "不绘制",
+          "intersection.style.background": "背景色",
+          "intersection.style.solid": "竖直实线",
+          "intersection.style.dashed": "竖直虚线",
+          "export.directory.downloads": "下载目录",
+          "export.directory.unsupported": "当前浏览器不支持目录选择，将保存到下载目录。",
+          "export.directory.selected": "已选择目录",
+          "export.directory.failed": "目录选择失败。",
+          "export.error.noSeries": "未找到时间序列。",
+          "export.error.noSignalsSelected": "请先选择信号。",
+          "export.error.libraryNotReady": "信号库未加载完成。",
+          "export.status.generating": "正在生成数据...",
+          "export.error.noData": "没有可保存的数据。",
+          "export.error.xlsxMissing": "XLSX 未加载",
+          "export.status.saved": "保存完成。",
+          "export.error.saveFailed": "保存失败，请检查信号定义或数据。",
+          "export.defaultFileName": "时间序列",
+          "export.defaultSuffix": "信号",
+          "export.sheetName": "信号",
+          "template.empty": "暂无模板，请先保存或导入模板。",
+          "template.menu.label": "模板操作",
+          "template.summary.rootNone": "根信号: -",
+          "template.summary.root": "根信号: {type} · 节点 {count}",
+          "template.hint.selectRoot": "请选择根信号后保存模板。",
+          "template.hint.reuse": "保存模板后可在 Add / 模板 中快速复用。",
+          "template.hint.rootOnly": "仅根信号可保存模板。",
+          "template.hint.external": "模板不能包含外部信号。",
+          "template.save.title": "保存信号模板",
+          "template.save.title.rename": "重命名模板",
+          "template.save.note.create": "保存后可在 Add / 模板 中直接添加。",
+          "template.save.note.rename": "仅修改模板名称，不影响信号内容。",
+          "template.error.nameRequired": "请输入模板名称。",
+          "template.error.noSeries": "未找到时间序列。",
+          "template.error.noRoot": "未找到根信号。",
+          "template.error.rootOnly": "仅根信号可保存为模板。",
+          "template.error.external": "模板不能包含外部信号。",
+          "template.error.notFound": "未找到模板。",
+          "template.error.nameExists": "模板名称已存在。",
+          "template.save.overwrite": "已覆盖同名模板，已保存到模板库。",
+          "template.save.saved": "已保存到模板库。",
+          "template.status.renamed": "已重命名模板。",
+          "template.status.deleted": "已删除模板。",
+          "template.confirm.delete": "确定删除模板 \"{name}\" 吗？",
+          "template.import.loading": "正在导入模板...",
+          "template.import.none": "未找到有效模板。",
+          "template.import.added": "已导入 {count} 个模板",
+          "template.import.skipped": "，跳过 {count} 个同名模板",
+          "template.import.failed": "，{count} 个文件解析失败",
+          "template.import.externalSkipped": " 已跳过 {count} 个外部模板。",
+          "template.import.ending": "。",
+          "template.file.defaultName": "信号模板",
+          "template.file.saved": "文件已保存，请确认保存在 apps/ui-static/templates/。",
+          "template.file.cancelled": "文件保存已取消。",
+          "template.file.downloaded": "文件已下载，请手动移动到 apps/ui-static/templates/。",
+          "template.file.failed": "文件保存失败。",
+          "time.year": "年",
+          "time.month": "月",
+          "time.day": "日",
+          "time.hour": "小时",
+          "time.minute": "分钟",
+          "time.second": "秒"
+        },
+        "fr": {
+          "page.title": "Console de series temporelles Hiera-TF",
+          "header.subtitle": "Visualisation des signaux hierarchiques multi-horizons",
+          "lang.switch.label": "Choisir la langue",
+          "sidebar.title": "Liste des series temporelles",
+          "sidebar.note": "Du fin au grossier - LTF en haut",
+          "action.add": "Ajouter",
+          "action.setup": "Configurer",
+          "action.configure": "Configurer",
+          "action.save": "Enregistrer",
+          "action.delete": "Supprimer",
+          "action.replace": "Remplacer",
+          "action.choose": "Choisir",
+          "action.use": "Utiliser",
+          "action.rename": "Renommer",
+          "action.close": "Fermer",
+          "action.cancel": "Annuler",
+          "action.collapse": "Replier",
+          "action.expand": "Deplier",
+          "action.back": "Retour",
+          "plot.title": "Graphique",
+          "plot.composite.label": "Contrainte hierar.",
+          "plot.mode.label": "Mode de trace",
+          "plot.mode.ltf": "LTF uniquement",
+          "plot.mode.parallel": "Series paralleles",
+          "plot.mode.stitched": "Series concatenees",
+          "plot.empty.title": "Aucune donnee",
+          "plot.empty.desc": "Ajoutez une serie pour voir le graphique",
+          "legend.title": "Legende",
+          "legend.empty": "Aucun element",
+          "legend.traceFallback": "Trace {index}",
+          "legend.overlayFallback": "Surcouche",
+          "wizard.title.series": "Configurer la serie temporelle",
+          "wizard.tab.source": "Source",
+          "wizard.tab.scale": "Echelle",
+          "wizard.tab.signals": "Signaux",
+          "wizard.tab.viz": "Visu",
+          "wizard.source.title": "Source de donnees",
+          "wizard.source.file.title": "Fichier de donnees",
+          "wizard.source.file.upload": "Televerser",
+          "wizard.source.file.note": "CSV / XLSX avec colonnes temps et valeurs",
+          "wizard.source.file.choose": "Choisir un fichier",
+          "wizard.source.existing.title": "Fichiers deja utilises",
+          "wizard.source.existing.pickOther": "Choisir un autre fichier",
+          "wizard.source.summary.file": "Fichier",
+          "wizard.source.summary.columns": "Colonnes",
+          "wizard.source.summary.numeric": "Colonne de valeurs",
+          "wizard.source.mapping.title": "Correspondance des colonnes temporelles",
+          "wizard.source.mapping.reset": "Reinitialiser",
+          "wizard.source.mapping.year": "Annee",
+          "wizard.source.mapping.month": "Mois",
+          "wizard.source.mapping.day": "Jour",
+          "wizard.source.mapping.hour": "Heure",
+          "wizard.source.mapping.minute": "Minute",
+          "wizard.source.mapping.second": "Seconde",
+          "wizard.source.value.title": "Colonne de valeurs",
+          "wizard.source.value.helper": "Laissez vide si une unite temporelle manque",
+          "wizard.scale.title": "Echelle temporelle",
+          "wizard.scale.definition.title": "Definition de l'echelle",
+          "wizard.scale.definition.placeholder": "Entier",
+          "wizard.scale.aggregate.title": "Methode d'agregation",
+          "wizard.scale.aggregate.mean": "Moyenne",
+          "wizard.scale.aggregate.min": "Min",
+          "wizard.scale.aggregate.max": "Max",
+          "wizard.scale.aggregate.median": "Mediane",
+          "wizard.scale.aggregate.percentile": "Percentile",
+          "wizard.scale.aggregate.percentile.label": "Percentile",
+          "wizard.scale.helper.unique": "L'echelle doit etre unique",
+          "wizard.signals.title": "Configuration des signaux",
+          "wizard.signals.list.title": "Liste des signaux",
+          "wizard.signals.action.collapseAll": "Tout replier",
+          "wizard.signals.down.label": "Signal de contrainte hierarchique descendante",
+          "wizard.signals.params.title": "Parametres du signal",
+          "wizard.signals.params.empty": "Selectionnez un signal a gauche",
+          "wizard.signals.template.save": "Enregistrer le modele",
+          "wizard.viz.title": "Visualisation",
+          "wizard.viz.list.title": "Elements graphiques",
+          "wizard.viz.action.add": "+ Ajouter un element",
+          "wizard.viz.helper.reorder": "Glissez pour definir la priorite de dessin",
+          "wizard.viz.hierarchyConstraint.title": "Visualisation du signal de contrainte hierarchique",
+          "wizard.footer.prev": "Precedent",
+          "wizard.footer.next": "Suivant",
+          "wizard.footer.finish": "Terminer",
+          "wizard.footer.status.incomplete": "Incomplet",
+          "wizard.status.complete": "Complet",
+          "wizard.status.incomplete": "Incomplet",
+          "intersection.title": "Configuration de la contrainte hierarchique composite",
+          "intersection.subtitle": "Selectionnez les signaux de contrainte hierarchique et configurez le trace et l'export",
+          "intersection.signals.title": "Selection des signaux de contrainte hierarchique",
+          "intersection.signals.selectAll": "Tout selectionner",
+          "intersection.signals.empty": "Aucun signal de contrainte hierarchique",
+          "intersection.signals.helper": "Si aucun n'est selectionne, la contrainte hierarchique composite ne sera pas generee",
+          "intersection.plot.title": "Parametres du trace",
+          "intersection.field.style": "Style",
+          "intersection.field.color": "Couleur",
+          "intersection.field.opacity": "Opacite",
+          "intersection.export.title": "Enregistrer la sortie",
+          "intersection.export.series.title": "Series et signaux",
+          "intersection.export.series.label": "Serie temporelle",
+          "intersection.export.series.empty": "Aucun signal pour cette serie",
+          "intersection.export.series.helper": "Contrainte hierarchique composite appliquee par defaut",
+          "intersection.export.options.title": "Options d'export",
+          "intersection.export.options.includeDeps": "Inclure les signaux dependants",
+          "intersection.export.options.includeValues": "Inclure les colonnes de valeurs",
+          "intersection.export.save.title": "Parametres d'enregistrement",
+          "intersection.export.save.directory": "Dossier d'enregistrement",
+          "intersection.export.save.fileName": "Nom de fichier",
+          "intersection.export.save.fileType": "Type de fichier",
+          "export.title": "Enregistrer les donnees de signal",
+          "export.subtitle": "Serie temporelle : {name}",
+          "export.signals.title": "Selection des signaux",
+          "export.signals.empty": "Aucun signal pour cette serie",
+          "export.options.title": "Options d'export",
+          "export.options.applyHierarchyConstraint": "Appliquer le filtre de contrainte hierarchique",
+          "export.options.includeDeps": "Inclure les signaux dependants",
+          "export.options.includeValues": "Inclure les colonnes de valeurs",
+          "export.save.title": "Parametres d'enregistrement",
+          "export.save.directory": "Dossier d'enregistrement",
+          "export.save.fileName": "Nom de fichier",
+          "export.save.fileType": "Type de fichier",
+          "picker.viz.title": "Ajouter un element graphique",
+          "picker.signal.title": "Selectionner le type de signal",
+          "picker.signal.tab.types": "Types de signaux",
+          "picker.signal.tab.external": "Signal externe",
+          "picker.signal.tab.templates": "Modeles",
+          "picker.signal.import": "Importer des modeles",
+          "externalSignal.file.title": "Fichier de signal externe",
+          "externalSignal.file.note": "CSV / XLSX avec colonnes temporelles et une colonne signal",
+          "externalSignal.file.choose": "Choisir un fichier",
+          "externalSignal.mapping.title": "Correspondance des colonnes temporelles",
+          "externalSignal.signal.title": "Colonne du signal",
+          "externalSignal.signal.trueValue": "Valeur vraie",
+          "externalSignal.signal.trueValue.helper": "Valeur representant TRUE dans la colonne signal",
+          "externalSignal.action.bind": "Lier le signal",
+          "externalSignal.status.ready": "Pret a etre lie a la serie courante",
+          "externalSignal.status.bound": "Signal externe ajoute",
+          "externalSignal.error.seriesIncomplete": "Completez d'abord Source et Echelle.",
+          "externalSignal.error.noFile": "Choisissez d'abord un fichier.",
+          "externalSignal.error.emptyOrInvalid": "Fichier vide ou invalide.",
+          "externalSignal.error.readFailed": "Echec de lecture du fichier de signal externe.",
+          "externalSignal.error.insufficientTimeColumns": "Colonnes temporelles insuffisantes. Besoin de {units}.",
+          "externalSignal.error.noSignalColumn": "Selectionnez une colonne signal.",
+          "externalSignal.error.missingTimeValues": "Certaines lignes n'ont pas les valeurs temporelles requises.",
+          "externalSignal.error.duplicateTimestamps": "Horodatages en double dans le fichier externe.",
+          "externalSignal.error.scaleMismatch": "Les horodatages externes doivent s'aligner sur l'echelle courante.",
+          "externalSignal.error.timeMismatch": "Les horodatages externes doivent correspondre exactement a la serie courante.",
+          "externalSignal.error.trueValueRequired": "Entrez une valeur vraie pour la colonne signal.",
+          "externalSignal.summary.file": "Fichier",
+          "externalSignal.summary.column": "Colonne signal",
+          "externalSignal.summary.trueValue": "Valeur vraie",
+          "externalSignal.summary.status": "Statut",
+          "externalSignal.status.valid": "Valide",
+          "externalSignal.status.invalid": "Invalide",
+          "externalSignal.detail.note": "Les signaux externes proviennent d'un fichier et ne sont pas modifiables ici.",
+          "picker.template.title": "Enregistrer un modele",
+          "picker.template.name": "Nom du modele",
+          "series.empty.title": "Aucune serie temporelle",
+          "series.empty.desc": "Cliquez sur Ajouter pour creer LTF",
+          "series.badge.incomplete": "Incomplet",
+          "series.scale.unset": "Echelle non definie",
+          "series.defaultName": "Serie temporelle",
+          "scale.selectUnit": "Choisir l'unite",
+          "scale.error.duplicate": "Cette echelle existe deja",
+          "source.existing.empty": "Aucun fichier utilise",
+          "source.existing.meta": "Source : {name}",
+          "source.existing.columns": "Colonnes : {columns}",
+          "source.error.emptyOrInvalid": "Le fichier est vide ou illisible",
+          "source.error.noNumeric": "Aucune colonne numerique valide",
+          "source.error.insufficientTimeColumns": "Colonnes temporelles insuffisantes : au moins 3 parmi {units}",
+          "source.error.readFailed": "Echec de lecture du fichier. Verifiez le format.",
+          "signal.empty": "Aucun signal",
+          "signal.param.type": "Type de signal",
+          "signal.dependency.suffix": "(signal dependant)",
+          "signal.dependency.remaining": "{label} - reste {remaining}/{requiredCount}",
+          "signal.dependency.added": "{label} - ajoute",
+          "signal.dependency.need": "Ajouter {remaining}/{requiredCount} signaux dependants",
+          "signal.dependency.add": "+ Ajouter un signal dependant",
+          "signal.picker.dependencyParam": "Selectionner un parametre dependant",
+          "signal.picker.dependencyEmpty": "Aucune dependance disponible",
+          "signal.picker.dependencyType": "Selectionner le type de signal dependant",
+          "signal.picker.type": "Selectionner le type de signal",
+          "signal.picker.dependencyTemplate": "Selectionner le modele dependant",
+          "signal.picker.template": "Selectionner un modele",
+          "signal.down.note.noSignals": "Ajoutez des signaux avant de choisir un signal de contrainte hierarchique descendante",
+          "signal.down.note.ltfSelected": "Le choix LTF n'a pas d'effet, seulement un prereglage",
+          "signal.down.note.ltfOptional": "LTF n'exige pas de reglage, vous pouvez preselectionner",
+          "signal.down.note.select": "Selectionnez un signal de contrainte hierarchique descendante",
+          "signal.down.note.selected": "Signal de contrainte hierarchique descendante selectionne",
+          "signal.warning.duplicate": "Des signaux avec definition et alias identiques existent. Modifiez l'alias ou les parametres/dependances pour rester uniques.",
+          "signal.viz.label": "Signal - {name}",
+          "signal.type.fallback": "signal",
+          "signal.option.gt": ">",
+          "signal.option.lt": "<",
+          "signal.option.mean": "Moyenne",
+          "signal.option.min": "Min",
+          "signal.option.max": "Max",
+          "signal.option.median": "Mediane",
+          "signal.option.percentile": "Percentile",
+          "signal.option.fast": "Rapide",
+          "signal.option.slow": "Lent",
+          "bool.true": "Vrai",
+          "bool.false": "Faux",
+          "viz.empty": "Aucun element",
+          "viz.element.line": "Ligne de serie",
+          "viz.element.raw": "Donnees brutes",
+          "viz.field.color": "Couleur",
+          "viz.field.style": "Style",
+          "viz.field.size": "Taille",
+          "viz.field.opacity": "Opacite",
+          "viz.lineStyle.solid": "Plein",
+          "viz.lineStyle.dashed": "Tirets",
+          "viz.lineStyle.dotted": "Pointille",
+          "viz.marker.circle": "Cercle",
+          "viz.marker.square": "Carre",
+          "viz.marker.diamond": "Losange",
+          "viz.marker.cross": "Croix",
+          "color.aria": "Couleur {color}",
+          "hierarchyConstraint.note.selectDownSignal": "Selectionnez un signal de contrainte hierarchique descendante dans Signaux",
+          "hierarchyConstraint.note.current": "Signal de contrainte hierarchique descendante actuel : {name}",
+          "hierarchyConstraint.legend.downstream": "{name} - Contrainte hierarchique descendante",
+          "hierarchyConstraint.legend.composite": "Contrainte hierarchique composite",
+          "hierarchyConstraint.style.background": "Fond",
+          "hierarchyConstraint.style.solid": "Plein",
+          "hierarchyConstraint.style.dashed": "Tirets",
+          "intersection.style.none": "Ne pas dessiner",
+          "intersection.style.background": "Fond",
+          "intersection.style.solid": "Ligne verticale pleine",
+          "intersection.style.dashed": "Ligne verticale en tirets",
+          "export.directory.downloads": "Telechargements",
+          "export.directory.unsupported": "La selection de dossier n'est pas prise en charge ; enregistrement dans Telechargements.",
+          "export.directory.selected": "Dossier selectionne",
+          "export.directory.failed": "Echec de la selection du dossier.",
+          "export.error.noSeries": "Serie temporelle introuvable.",
+          "export.error.noSignalsSelected": "Selectionnez au moins un signal.",
+          "export.error.libraryNotReady": "La bibliotheque de signaux n'est pas prete.",
+          "export.status.generating": "Generation des donnees...",
+          "export.error.noData": "Aucune donnee a enregistrer.",
+          "export.error.xlsxMissing": "XLSX n'est pas charge.",
+          "export.status.saved": "Enregistre.",
+          "export.error.saveFailed": "Echec de l'enregistrement. Verifiez les definitions de signal ou les donnees.",
+          "export.defaultFileName": "serie",
+          "export.defaultSuffix": "signaux",
+          "export.sheetName": "signaux",
+          "template.empty": "Aucun modele. Enregistrez ou importez d'abord.",
+          "template.menu.label": "Actions du modele",
+          "template.summary.rootNone": "Signal racine : -",
+          "template.summary.root": "Signal racine : {type} - Noeuds {count}",
+          "template.hint.selectRoot": "Selectionnez un signal racine pour enregistrer un modele.",
+          "template.hint.reuse": "Les modeles enregistres sont reutilisables dans Ajouter / Modeles.",
+          "template.hint.rootOnly": "Seuls les signaux racine peuvent etre enregistres.",
+          "template.hint.external": "Les modeles ne peuvent pas inclure des signaux externes.",
+          "template.save.title": "Enregistrer un modele de signal",
+          "template.save.title.rename": "Renommer le modele",
+          "template.save.note.create": "Apres l'enregistrement, ajoutez-le depuis Ajouter / Modeles.",
+          "template.save.note.rename": "Seul le nom change ; le contenu du signal reste identique.",
+          "template.error.nameRequired": "Saisissez un nom de modele.",
+          "template.error.noSeries": "Serie temporelle introuvable.",
+          "template.error.noRoot": "Signal racine introuvable.",
+          "template.error.rootOnly": "Seuls les signaux racine peuvent etre enregistres.",
+          "template.error.external": "Les modeles ne peuvent pas inclure des signaux externes.",
+          "template.error.notFound": "Modele introuvable.",
+          "template.error.nameExists": "Le nom du modele existe deja.",
+          "template.save.overwrite": "Modele duplique ecrase et enregistre dans la bibliotheque.",
+          "template.save.saved": "Enregistre dans la bibliotheque.",
+          "template.status.renamed": "Modele renomme.",
+          "template.status.deleted": "Modele supprime.",
+          "template.confirm.delete": "Supprimer le modele \"{name}\" ?",
+          "template.import.loading": "Importation des modeles...",
+          "template.import.none": "Aucun modele valide trouve.",
+          "template.import.added": "{count} modeles importes",
+          "template.import.skipped": ", {count} doublons ignores",
+          "template.import.failed": ", {count} fichiers ont echoue a l'analyse",
+          "template.import.externalSkipped": " {count} modeles externes ignores.",
+          "template.import.ending": ".",
+          "template.file.defaultName": "modele-signal",
+          "template.file.saved": "Fichier enregistre. Verifiez qu'il est dans apps/ui-static/templates/.",
+          "template.file.cancelled": "Enregistrement annule.",
+          "template.file.downloaded": "Fichier telecharge. Deplacez-le dans apps/ui-static/templates/.",
+          "template.file.failed": "Echec de l'enregistrement du fichier.",
+          "time.year": "Annee",
+          "time.month": "Mois",
+          "time.day": "Jour",
+          "time.hour": "Heure",
+          "time.minute": "Minute",
+          "time.second": "Seconde"
+        }
+      }
+    </script>
+    <script src="./i18n.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
+
+
