@@ -1,0 +1,18 @@
+# Hiera-TF
+
+Multi-timeframe hierarchy signal framework
+
+Copyright 2025-2026 ZHU Shengling
+
+This software includes third-party components licensed under the Apache License, Version 2.0.
+A complete list of these components and their licenses can be found in the LICENSE and
+THIRD_PARTY_NOTICES files.
+
+## Apache License 2.0
+
+This product is licensed under the Apache License, Version 2.0. See the LICENSE file
+for details.
+
+## Third-Party Software
+
+This product uses third-party software. See THIRD_PARTY_NOTICES for details.
