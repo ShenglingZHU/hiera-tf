@@ -1,0 +1,21 @@
+{
+  "name": "hiera-tf",
+  "version": "0.1.0",
+  "description": "Hierarchical timeframe toolkit",
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "private": true,
+  "files": [
+    "htf",
+    "demos",
+    "index.js"
+  ],
+  "scripts": {
+    "test": "node --test tests/",
+    "check": "biome check . ../../apps/ui-static/app.js ../../apps/ui-static/i18n.js",
+    "ci": "biome ci . ../../apps/ui-static/app.js ../../apps/ui-static/i18n.js"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.11"
+  }
+}
