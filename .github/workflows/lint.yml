@@ -15,21 +15,21 @@ on:
       - ".github/workflows/lint.yml"
 
 jobs:
-  js-biome:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@b4ffde6f65d46bf7beab6f0d2cfadd15f96f2fbe  # v4.2.2
+   js-biome:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
             packages/htf-js
             apps/ui-static
-          sparse-checkout-cone-mode: false
+           sparse-checkout-cone-mode: false
 
-      - uses: actions/setup-node@0abf0402437f17f3864b3202925b0e6c1e7d5e6c  # v4.2.0
-        with:
-          node-version: "20"
-          cache: 'npm'
-          cache-dependency-path: packages/htf-js/package-lock.json
+       - uses: actions/setup-node@v4
+         with:
+           node-version: "20"
+           cache: 'npm'
+           cache-dependency-path: packages/htf-js/package-lock.json
 
       - name: Install JS deps
         run: npm install --no-fund --no-audit --ignore-scripts
@@ -38,24 +38,18 @@ jobs:
         run: npm run ci
         working-directory: packages/htf-js
 
-  py-ruff:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@b4ffde6f65d46bf7beab6f0d2cfadd15f96f2fbe  # v4.2.2
+   py-ruff:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
             packages/htf-js
             packages/htf-py
             apps/ui-static
-          sparse-checkout-cone-mode: false
+           sparse-checkout-cone-mode: false
 
-      - uses: actions/setup-node@0abf0402437f17f3864b3202925b0e6c1e7d5e6c  # v4.2.0
-        with:
-          node-version: "20"
-          cache: 'npm'
-          cache-dependency-path: packages/htf-js/package-lock.json
-
-      - uses: actions/setup-python@f1372b24c152a6b26ab44b2dcbcDA31c0eb04ee  # v5.3.0
+       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: 'pip'
