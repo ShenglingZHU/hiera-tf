@@ -188,6 +188,7 @@ class TestValueVsRollingPercentile:
         assert sig.last_threshold > 2, (
             f"Expected threshold > 2 when including current value 100, got {sig.last_threshold}"
         )
+        assert result == 1
 
     def test_non_numeric_value_ignored(self):
         """Test non-numeric values are ignored."""
