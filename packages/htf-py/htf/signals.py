@@ -292,9 +292,12 @@ class SignalRunLengthReachedHistoryPercentile:
         self.current_run += 1
         self.tail_remaining = 0
 
-        if not self.active and self.current_threshold is not None:
-            if self.current_run >= self.current_threshold:
-                self.active = True
+        if (
+            not self.active
+            and self.current_threshold is not None
+            and self.current_run >= self.current_threshold
+        ):
+            self.active = True
 
         self.last_threshold = self.current_threshold
         return 1 if self.active else 0
@@ -821,16 +824,15 @@ class SignalEMADiffVsHistoryPercentile:
             self.ema_2 = self._update_ema(val, self.ema_2, self.ema_period_2)
             abs_diff = abs(self.ema_1 - self.ema_2)
 
-            if len(self.abs_diff_history) >= self.min_history:
-                threshold = compute_percentile(self.abs_diff_history, self.percentile)
-                if threshold is not None:
-                    if (
-                        self.comparison == "gt"
-                        and abs_diff > threshold
-                        or self.comparison == "lt"
-                        and abs_diff < threshold
-                    ):
-                        signal = 1
+            if (
+                len(self.abs_diff_history) >= self.min_history
+                and (threshold := compute_percentile(self.abs_diff_history, self.percentile)) is not None
+                and (
+                    (self.comparison == "gt" and abs_diff > threshold)
+                    or (self.comparison == "lt" and abs_diff < threshold)
+                )
+            ):
+                signal = 1
 
             self.abs_diff_history.append(abs_diff)
             if len(self.abs_diff_history) > self.history_window:
