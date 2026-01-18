@@ -230,7 +230,7 @@ class TestHTFFrameworkIntegration:
         for coord_result in results:
             if not coord_result["htf_allow"]:
                 # When HTF doesn't allow, LTF signals should be gated to 0
-                for name, gated_val in coord_result["ltf_gated"].items():
+                for gated_val in coord_result["ltf_gated"].values():
                     assert gated_val == 0, "LTF signal should be gated to 0 when htf_allow=False"
             else:
                 # When HTF allows, gated should equal raw

@@ -298,7 +298,7 @@ def _detect_time_columns(records: Sequence[Mapping[str, Any]]) -> List[str]:
         for key in rec.keys():
             keys.add(str(key))
     time_cols: List[str] = []
-    for unit, aliases in _TIME_COLUMN_DEFAULTS.items():
+    for aliases in _TIME_COLUMN_DEFAULTS.values():
         for alias in aliases:
             if alias in keys:
                 time_cols.append(alias)
@@ -595,7 +595,7 @@ class TimeframeView:
             value_data: Dict[str, List[Any]] = {}
             value_order: List[str] = []
             if include_values:
-                for node_id, runner in runners.items():
+                for runner in runners.values():
                     node_type = runner["type"]
                     base_name = _node_alias(runner["node"])
                     for attr in _SIGNAL_VALUE_ATTRS.get(node_type, []):
