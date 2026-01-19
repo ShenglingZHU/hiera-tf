@@ -292,11 +292,7 @@ class SignalRunLengthReachedHistoryPercentile:
         self.current_run += 1
         self.tail_remaining = 0
 
-        if (
-            not self.active
-            and self.current_threshold is not None
-            and self.current_run >= self.current_threshold
-        ):
+        if not self.active and self.current_threshold is not None and self.current_run >= self.current_threshold:
             self.active = True
 
         self.last_threshold = self.current_threshold
