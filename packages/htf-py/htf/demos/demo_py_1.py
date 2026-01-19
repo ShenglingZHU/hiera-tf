@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import random
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any
 
 from htf import TimeframeConfig, TimeframeView
 
@@ -23,10 +23,10 @@ def build_records(
     count: int,
     step_seconds: int,
     seed: int,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Build deterministic random records with time columns and a TEMP value."""
     rng = random.Random(seed)
-    records: List[Dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
     current = start_ts
 
     for _ in range(count):

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import random
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any
 
 from htf import TimeframeConfig, TimeframeView, ValueVsRollingPercentile
 
@@ -22,10 +22,10 @@ def build_records(
     count: int,
     step_seconds: int,
     seed: int,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Build deterministic random records with time columns and a TEMP value."""
     rng = random.Random(seed)
-    records: List[Dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
     current = start_ts
 
     for _ in range(count):
@@ -65,7 +65,7 @@ def main() -> None:
         comparison="lt",
     )
 
-    def signal_fn(features: Dict[str, Any]) -> int:
+    def signal_fn(features: dict[str, Any]) -> int:
         # The signal compares TEMP against the 80th percentile of recent history.
         return percentile_signal(features)
 
@@ -79,7 +79,7 @@ def main() -> None:
         signal_fn=signal_fn,
     )
 
-    results: List[Dict[str, Any]] = []
+    results: list[dict[str, Any]] = []
     for record in records:
         signal_value = timeframe.on_new_record(record)
         results.append(

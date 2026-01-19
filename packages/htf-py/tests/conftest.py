@@ -5,7 +5,7 @@ Pytest fixtures and shared test utilities for htf tests.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
 
@@ -27,7 +27,7 @@ def htf_config() -> TimeframeConfig:
 
 
 @pytest.fixture
-def sample_records() -> List[Dict[str, Any]]:
+def sample_records() -> list[dict[str, Any]]:
     """Sample records for testing."""
     return [
         {"ts": 1, "value": 10, "temp": 20.0},
@@ -44,13 +44,13 @@ def sample_records() -> List[Dict[str, Any]]:
 
 
 @pytest.fixture
-def numeric_sequence() -> List[Dict[str, float]]:
+def numeric_sequence() -> list[dict[str, float]]:
     """Numeric sequence for signal testing."""
     return [{"val": float(i)} for i in range(1, 21)]
 
 
 @pytest.fixture
-def binary_signal_sequence() -> List[Dict[str, int]]:
+def binary_signal_sequence() -> list[dict[str, int]]:
     """Binary signal sequence for run-length testing."""
     # Pattern: 0,0,1,1,1,0,1,1,1,1,0,0,0,1,1,0
     return [
@@ -94,11 +94,11 @@ def hierar_coordinator() -> HierarConstraintCoordinator:
 class MockFeatureModule(FeatureModule):
     """Mock feature module that returns configurable features."""
 
-    def __init__(self, features: Dict[str, Any] = None):
+    def __init__(self, features: dict[str, Any] = None):
         super().__init__()
         self._features = features or {}
 
-    def compute(self, window: Sequence[Any]) -> Dict[str, Any]:
+    def compute(self, window: Sequence[Any]) -> dict[str, Any]:
         result = dict(self._features)
         result["window_size"] = len(window)
         if window:
@@ -114,7 +114,7 @@ class MockSignalFunction:
         self.call_count = 0
         self.last_features = None
 
-    def __call__(self, features: Dict[str, Any]) -> Any:
+    def __call__(self, features: dict[str, Any]) -> Any:
         self.call_count += 1
         self.last_features = features
         return self.return_value
@@ -124,7 +124,7 @@ class MockSignalFunction:
 def mock_feature_module():
     """Factory for mock feature modules."""
 
-    def _create(features: Dict[str, Any] = None):
+    def _create(features: dict[str, Any] = None):
         return MockFeatureModule(features)
 
     return _create

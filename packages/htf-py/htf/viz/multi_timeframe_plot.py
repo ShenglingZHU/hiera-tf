@@ -5,7 +5,7 @@ from __future__ import annotations
 from bisect import bisect_right
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 from bokeh.layouts import Spacer, column, row
 from bokeh.models import BoxAnnotation, ColumnDataSource, LayoutDOM
@@ -16,10 +16,10 @@ from bokeh.plotting import figure
 @dataclass
 class _TimeframeSeries:
     name: str
-    timestamps: List[Any]
-    values: List[Any]
-    scale_signal: List[bool]
-    base_signal: List[bool]
+    timestamps: list[Any]
+    values: list[Any]
+    scale_signal: list[bool]
+    base_signal: list[bool]
 
 
 def _bokeh_is_datetime_like(x: Sequence[Any]) -> bool:
@@ -45,7 +45,7 @@ def _bokeh_is_datetime_like(x: Sequence[Any]) -> bool:
     return bool(hasattr(x0, "to_pydatetime"))
 
 
-def _figsize_to_pixels(figsize: Tuple[int, int]) -> Tuple[int, int]:
+def _figsize_to_pixels(figsize: tuple[int, int]) -> tuple[int, int]:
     # keep predictable sizing; 1 inch ~ 100 px
     return max(300, int(figsize[0] * 100)), max(220, int(figsize[1] * 90))
 
@@ -77,10 +77,10 @@ def _extract_timeframe_series(
     Pull timestamps, values and optional signals out of a TimeframeView buffer.
     Missing signal keys default to False so downstream code can rely on list length.
     """
-    timestamps: List[Any] = []
-    values: List[Any] = []
-    scale_flags: List[bool] = []
-    base_flags: List[bool] = []
+    timestamps: list[Any] = []
+    values: list[Any] = []
+    scale_flags: list[bool] = []
+    base_flags: list[bool] = []
 
     for rec in getattr(tf, "buffer", []):
         if x_key not in rec or value_key not in rec:
@@ -107,11 +107,11 @@ def _extract_timeframe_series(
     )
 
 
-def _truthy_windows(flags: Sequence[bool], xs: Sequence[Any]) -> List[Tuple[Any, Any]]:
+def _truthy_windows(flags: Sequence[bool], xs: Sequence[Any]) -> list[tuple[Any, Any]]:
     """
     Collapse consecutive True values into (start, end) windows.
     """
-    windows: List[Tuple[Any, Any]] = []
+    windows: list[tuple[Any, Any]] = []
     start = None
     for idx, flag in enumerate(flags):
         if bool(flag):
@@ -158,11 +158,11 @@ def _build_tf_series(
     value_key_map: Optional[Mapping[Any, str]],
     x_key: str,
     y_key: str,
-) -> Tuple[List[_TimeframeSeries], _TimeframeSeries, List[_TimeframeSeries]]:
+) -> tuple[list[_TimeframeSeries], _TimeframeSeries, list[_TimeframeSeries]]:
     if not timeframes:
         raise ValueError("timeframes must contain at least one timeframe")
 
-    tf_series: List[_TimeframeSeries] = []
+    tf_series: list[_TimeframeSeries] = []
     n_tfs = len(timeframes)
 
     for idx, tf in enumerate(timeframes):
@@ -188,7 +188,7 @@ def _build_tf_series(
     return tf_series, ltf_series, htf_series
 
 
-def _make_color_cycle(n: int, colors: Optional[Sequence[str]] = None) -> List[str]:
+def _make_color_cycle(n: int, colors: Optional[Sequence[str]] = None) -> list[str]:
     if colors:
         cycle = list(colors)
     else:
@@ -200,7 +200,7 @@ def _make_color_cycle(n: int, colors: Optional[Sequence[str]] = None) -> List[st
     return cycle
 
 
-def _build_stitched_path(tf_series: List[_TimeframeSeries]) -> Dict[str, Any]:
+def _build_stitched_path(tf_series: list[_TimeframeSeries]) -> dict[str, Any]:
     """
     Build a stitched, single-path representation by walking LTF timestamps and
     falling back to HTF values when HTF is not allowing LTF.
@@ -225,13 +225,13 @@ def _build_stitched_path(tf_series: List[_TimeframeSeries]) -> Dict[str, Any]:
                 return val
         return None
 
-    x_idx: List[int] = []
-    values: List[Any] = []
-    ts_list: List[Any] = []
-    names: List[str] = []
-    base_flags: List[bool] = []
-    htf_active: List[bool] = []
-    boundaries: List[int] = []
+    x_idx: list[int] = []
+    values: list[Any] = []
+    ts_list: list[Any] = []
+    names: list[str] = []
+    base_flags: list[bool] = []
+    htf_active: list[bool] = []
+    boundaries: list[int] = []
 
     prev_name: Optional[str] = None
     for i, ts in enumerate(ltf_series.timestamps):
@@ -278,8 +278,8 @@ def plot_multi_tfs_parallel_time_series(
     y_key: str = "value",
     share_y: bool = False,
     signal_key: Optional[str] = None,
-    signal_style: Optional[Dict[str, Any]] = None,
-    figsize: Tuple[int, int] = (10, 6),
+    signal_style: Optional[dict[str, Any]] = None,
+    figsize: tuple[int, int] = (10, 6),
 ) -> LayoutDOM:
     """
     Bokeh: plot multiple timeframes stacked vertically with linked x-range and pan/zoom.
@@ -292,7 +292,7 @@ def plot_multi_tfs_parallel_time_series(
     width, height_total = _figsize_to_pixels(figsize)
     height_each = max(220, int(height_total / max(1, n)))
 
-    figs: List[LayoutDOM] = []
+    figs: list[LayoutDOM] = []
     shared_x_range = None
     shared_y_range = None
 
@@ -387,7 +387,7 @@ def plot_multi_tfs_single_time_serie(
     value_key_map: Optional[Mapping[Any, str]] = None,
     x_key: str = "timestamp",
     y_key: str = "value",
-    figsize: Tuple[int, int] = (12, 5),
+    figsize: tuple[int, int] = (12, 5),
     title: Optional[str] = None,
     colors: Optional[Sequence[str]] = None,
 ) -> LayoutDOM:
@@ -425,11 +425,11 @@ def plot_multi_tfs_single_time_serie(
     htf_color = color_cycle[0] if htf_series else ltf_color
 
     # compute HTF windows and LTF allowed mask (all HTFs active and covering ts)
-    htf_windows: Dict[str, List[Tuple[Any, Any]]] = {}
+    htf_windows: dict[str, list[tuple[Any, Any]]] = {}
     for series in htf_series:
         htf_windows[series.name] = _truthy_windows(series.scale_signal, series.timestamps)
 
-    all_active_mask: List[bool] = []
+    all_active_mask: list[bool] = []
     if htf_windows:
         for ts in ltf_series.timestamps:
             active = True
@@ -443,8 +443,8 @@ def plot_multi_tfs_single_time_serie(
 
     def _mask_to_segments(
         mask: Sequence[bool], xs: Sequence[Any], ys: Sequence[Any]
-    ) -> List[Tuple[List[Any], List[Any]]]:
-        segs: List[Tuple[List[Any], List[Any]]] = []
+    ) -> list[tuple[list[Any], list[Any]]]:
+        segs: list[tuple[list[Any], list[Any]]] = []
         start_idx = None
         for idx, flag in enumerate(mask):
             if flag and start_idx is None:
@@ -532,7 +532,7 @@ def plot_multi_tfs_only_ltf_time_serie(
     value_key_map: Optional[Mapping[Any, str]] = None,
     x_key: str = "timestamp",
     y_key: str = "value",
-    figsize: Tuple[int, int] = (12, 4),
+    figsize: tuple[int, int] = (12, 4),
     title: Optional[str] = None,
     colors: Optional[Sequence[str]] = None,
     ltf_color: Optional[str] = None,
@@ -568,7 +568,7 @@ def plot_multi_tfs_only_ltf_time_serie(
     seen_labels: set[str] = set()
 
     # HTF windows
-    htf_windows: Dict[str, List[Tuple[Any, Any]]] = {}
+    htf_windows: dict[str, list[tuple[Any, Any]]] = {}
     for series in htf_series:
         windows = _truthy_windows(series.scale_signal, series.timestamps)
         htf_windows[series.name] = windows
@@ -592,7 +592,7 @@ def plot_multi_tfs_only_ltf_time_serie(
     p.scatter("x", "y", source=ltf_src, size=4, color=ltf_line_color, alpha=0.9, marker="circle")
 
     # Determine whether all HTF windows active at each LTF timestamp
-    all_active_mask: List[bool] = []
+    all_active_mask: list[bool] = []
     for ts in ltf_series.timestamps:
         active = True if htf_windows else True
         for windows in htf_windows.values():
@@ -602,10 +602,10 @@ def plot_multi_tfs_only_ltf_time_serie(
         all_active_mask.append(active)
 
     base_flags = ltf_series.base_signal or [False] * len(ltf_series.timestamps)
-    inside_x: List[Any] = []
-    inside_y: List[Any] = []
-    outside_x: List[Any] = []
-    outside_y: List[Any] = []
+    inside_x: list[Any] = []
+    inside_y: list[Any] = []
+    outside_x: list[Any] = []
+    outside_y: list[Any] = []
 
     for idx, flag in enumerate(base_flags):
         if idx >= len(ltf_series.timestamps):
@@ -649,7 +649,7 @@ def check_multi_tfs_single_time_serie_vs_coordinator(
     x_key: str = "timestamp",
     y_key: str = "value",
     coordinator_outputs: Optional[Sequence[Mapping[str, Any]]] = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Compare plot-derived gating (all HTF signals must be true) against optional
     coordinator outputs. Returns a timeline plus mismatch diagnostics.
@@ -658,8 +658,8 @@ def check_multi_tfs_single_time_serie_vs_coordinator(
         timeframes, scale_change_signal_map, base_signal_ltf, value_key_map, x_key, y_key
     )
 
-    timeline: List[Dict[str, Any]] = []
-    mismatches: Dict[str, List[Dict[str, Any]]] = {
+    timeline: list[dict[str, Any]] = []
+    mismatches: dict[str, list[dict[str, Any]]] = {
         "plot_not_allowed": [],
         "coordinator_unused": [],
     }

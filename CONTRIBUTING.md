@@ -58,7 +58,7 @@ Note: If a Signal reads both `value_key` and `signal_key`, it is a hybrid; list 
 
 #### 2) Python implementation conventions (based on `signals.py` style)
 
-- Use classes or dataclasses, provide an optional `reset()` and a `__call__(features: Dict[str, Any]) -> int` method.
+- Use classes or dataclasses, provide an optional `reset()` and a `__call__(features: dict[str, Any]) -> int` method.
 - Naming: Class names should use PascalCase, e.g. `MyNewSignal`.
 - Parameters: Declare `value_key` or `signal_key`, window parameters, thresholds, etc., in the constructor/dataclass fields.
 
@@ -66,7 +66,7 @@ Example skeleton (Python)
 
 ```python
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 @dataclass
 class MyNewValueSignal:
@@ -77,7 +77,7 @@ class MyNewValueSignal:
         # reset internal state
         pass
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         # read value from features
         val = features.get(self.value_key)
         # TODO: implement logic
@@ -90,7 +90,7 @@ class MyNewSignalBased:
     def reset(self) -> None:
         pass
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         base = features.get(self.signal_key)
         return 1 if base else 0
 ```
@@ -243,7 +243,7 @@ Remarque : si un Signal lit à la fois `value_key` et `signal_key`, il est hybri
 
 #### 2) Conventions d'implémentation Python (basées sur le style `signals.py`)
 
-- Utilisez des classes ou dataclasses, fournissez une méthode optionnelle `reset()` et une méthode `__call__(features: Dict[str, Any]) -> int`.
+- Utilisez des classes ou dataclasses, fournissez une méthode optionnelle `reset()` et une méthode `__call__(features: dict[str, Any]) -> int`.
 - Nommage : noms de classes en PascalCase, ex. `MyNewSignal`.
 - Paramètres : déclarez `value_key` ou `signal_key`, paramètres de fenêtre, seuils, etc., dans le constructeur/champs dataclass.
 
@@ -251,7 +251,7 @@ Exemple (Python)
 
 ```python
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 @dataclass
 class MyNewValueSignal:
@@ -262,7 +262,7 @@ class MyNewValueSignal:
         # reset internal state
         pass
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         # read value from features
         val = features.get(self.value_key)
         # TODO: implement logic
@@ -275,7 +275,7 @@ class MyNewSignalBased:
     def reset(self) -> None:
         pass
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         base = features.get(self.signal_key)
         return 1 if base else 0
 ```
@@ -428,7 +428,7 @@ Si vous avez un doute sur une implémentation de Signal ou de template, ouvrez u
 
 #### 2) Python 实现约定（基于现有 `signals.py` 风格）
 
-- 使用类或 dataclass，提供 `reset()`（可选）和 `__call__(features: Dict[str, Any]) -> int` 方法。
+- 使用类或 dataclass，提供 `reset()`（可选）和 `__call__(features: dict[str, Any]) -> int` 方法。
 - 命名：类名使用大驼峰（PascalCase），如 `MyNewSignal`。
 - 参数：在构造函数 / dataclass 字段中声明 `value_key` 或 `signal_key`、窗口参数、阈值等。
 
@@ -436,7 +436,7 @@ Si vous avez un doute sur une implémentation de Signal ou de template, ouvrez u
 
 ```python
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 @dataclass
 class MyNewValueSignal:
@@ -447,7 +447,7 @@ class MyNewValueSignal:
         # reset internal state
         pass
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         # read value from features
         val = features.get(self.value_key)
         # TODO: implement logic
@@ -460,7 +460,7 @@ class MyNewSignalBased:
     def reset(self) -> None:
         pass
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         base = features.get(self.signal_key)
         return 1 if base else 0
 ```

@@ -4,14 +4,14 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 @dataclass
 class TimeframeState:
     name: str
     role: str
-    features: Dict[str, Any]
+    features: dict[str, Any]
     signal: Any
 
 
@@ -20,7 +20,7 @@ class MultiScaleCoordinator:
         self,
         states: Mapping[str, TimeframeState],
         record: Mapping[str, Any],
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         raise NotImplementedError
 
 
@@ -29,7 +29,7 @@ class SimpleHTFCoordinator(MultiScaleCoordinator):
         self,
         states: Mapping[str, TimeframeState],
         record: Mapping[str, Any],
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         htf_states = [s for s in states.values() if s.role == "HTF"]
         ltf_states = {name: s for name, s in states.items() if s.role == "LTF"}
 
@@ -44,7 +44,7 @@ class SimpleHTFCoordinator(MultiScaleCoordinator):
         }
 
 
-def _normalize_flags(flags: Optional[Iterable[Any]], length: int, fill_value: bool = False) -> List[bool]:
+def _normalize_flags(flags: Optional[Iterable[Any]], length: int, fill_value: bool = False) -> list[bool]:
     if not flags:
         return [fill_value for _ in range(length)]
     normalized = [bool(flag) for flag in list(flags)[:length]]
@@ -53,8 +53,8 @@ def _normalize_flags(flags: Optional[Iterable[Any]], length: int, fill_value: bo
     return normalized
 
 
-def _truthy_windows(flags: Sequence[bool], timestamps: Sequence[Any]) -> List[tuple[Any, Any]]:
-    windows: List[tuple[Any, Any]] = []
+def _truthy_windows(flags: Sequence[bool], timestamps: Sequence[Any]) -> list[tuple[Any, Any]]:
+    windows: list[tuple[Any, Any]] = []
     start = None
     for idx, flag in enumerate(flags):
         if bool(flag):
@@ -70,7 +70,7 @@ def _truthy_windows(flags: Sequence[bool], timestamps: Sequence[Any]) -> List[tu
     return windows
 
 
-def _map_windows_to_mask(windows: Sequence[tuple[Any, Any]], timestamps: Sequence[Any]) -> List[bool]:
+def _map_windows_to_mask(windows: Sequence[tuple[Any, Any]], timestamps: Sequence[Any]) -> list[bool]:
     if not timestamps:
         return []
     if not windows:
@@ -96,10 +96,10 @@ class HierarConstraintCoordinator(MultiScaleCoordinator):
         self,
         states: Mapping[str, TimeframeState],
         record: Mapping[str, Any],
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         order = self.order or list(states.keys())
-        allow_map: Dict[str, bool] = {}
-        raw_map: Dict[str, Any] = {}
+        allow_map: dict[str, bool] = {}
+        raw_map: dict[str, Any] = {}
 
         for idx, name in enumerate(order):
             if name not in states:
@@ -117,7 +117,7 @@ class HierarConstraintCoordinator(MultiScaleCoordinator):
         gated_map = {name: (raw_map[name] if allow_map.get(name, True) else 0) for name in raw_map}
         return {"allow_map": allow_map, "raw_map": raw_map, "gated_map": gated_map}
 
-    def build_gate_masks_from_series(self, series_list: Sequence[Mapping[str, Any]]) -> Dict[str, List[bool]]:
+    def build_gate_masks_from_series(self, series_list: Sequence[Mapping[str, Any]]) -> dict[str, list[bool]]:
         """
         Build per-series hierarchy constraint masks using downward flags from coarser series.
         Each series entry should provide:
@@ -128,7 +128,7 @@ class HierarConstraintCoordinator(MultiScaleCoordinator):
         """
         if not series_list:
             return {}
-        meta: List[Dict[str, Any]] = []
+        meta: list[dict[str, Any]] = []
         for idx, series in enumerate(series_list):
             series_id = series.get("id") or series.get("name") or f"series-{idx}"
             timestamps = list(series.get("timestamps") or [])
@@ -142,7 +142,7 @@ class HierarConstraintCoordinator(MultiScaleCoordinator):
                 windows = _truthy_windows(normalized, timestamps)
             meta.append({"id": series_id, "timestamps": timestamps, "windows": windows})
 
-        masks: Dict[str, List[bool]] = {}
+        masks: dict[str, list[bool]] = {}
         for idx, entry in enumerate(meta):
             timestamps = entry["timestamps"]
             mask = [True for _ in range(len(timestamps))]

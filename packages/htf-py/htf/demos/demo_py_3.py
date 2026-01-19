@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import random
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any
 
 from htf import (
     HierarConstraintCoordinator,
@@ -33,10 +33,10 @@ def build_records(
     *,
     baseline_fn=None,
     noise_range: float = 4.0,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Build deterministic random records with time columns and a TEMP value."""
     rng = random.Random(seed)
-    records: List[Dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
     current = start_ts
 
     for idx in range(count):
@@ -122,7 +122,7 @@ def main() -> None:
 
     coordinator = HierarConstraintCoordinator(order=["15m", "5m"])
 
-    results: List[Dict[str, Any]] = []
+    results: list[dict[str, Any]] = []
     htf_index = 0
 
     for record in records_5m:

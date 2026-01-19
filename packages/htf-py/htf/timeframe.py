@@ -4,15 +4,15 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Union
 
 Record = Mapping[str, Any]
-MutableRecord = Dict[str, Any]
-FeatureDict = Dict[str, Any]
+MutableRecord = dict[str, Any]
+FeatureDict = dict[str, Any]
 FeatureFunction = Callable[[Sequence[Record]], FeatureDict]
 SignalFunction = Callable[[FeatureDict], Any]
 
-_TIME_COLUMN_DEFAULTS: Dict[str, List[str]] = {
+_TIME_COLUMN_DEFAULTS: dict[str, list[str]] = {
     "year": ["year", "Year", "YEAR", "yyyy", "YYYY"],
     "month": ["month", "Month", "MONTH", "mm", "MM"],
     "day": ["day", "Day", "DAY", "dd", "DD"],
@@ -21,7 +21,7 @@ _TIME_COLUMN_DEFAULTS: Dict[str, List[str]] = {
     "second": ["second", "Second", "SECOND", "sec", "SEC", "ss", "SS"],
 }
 
-_TIME_UNITS: List[Tuple[str, str]] = [
+_TIME_UNITS: list[tuple[str, str]] = [
     ("year", "Year"),
     ("month", "Month"),
     ("day", "Day"),
@@ -46,7 +46,7 @@ _INT_PARAMS = {
 _FLOAT_PARAMS = {"percentile"}
 _BOOL_PARAMS = {"include_current"}
 
-_SIGNAL_VALUE_ATTRS: Dict[str, List[str]] = {
+_SIGNAL_VALUE_ATTRS: dict[str, list[str]] = {
     "ValueVsRollingPercentile": ["last_threshold"],
     "ValueVsRollingPercentileWithThreshold": ["last_threshold"],
     "SignalRunLengthReached": ["current_run", "tail_remaining"],
@@ -134,22 +134,22 @@ def _coerce_param(name: str, value: Any) -> Any:
 
 def _build_signal_defs_map(
     signal_defs: Optional[Union[Mapping[str, Any], Sequence[Mapping[str, Any]]]],
-) -> Dict[str, Mapping[str, Any]]:
+) -> dict[str, Mapping[str, Any]]:
     if not signal_defs:
         return {}
     if isinstance(signal_defs, Mapping):
         if "type" in signal_defs:
             return {str(signal_defs["type"]): signal_defs}  # type: ignore[return-value]
         return {str(k): v for k, v in signal_defs.items()}
-    defs_map: Dict[str, Mapping[str, Any]] = {}
+    defs_map: dict[str, Mapping[str, Any]] = {}
     for item in signal_defs:
         if item and "type" in item:
             defs_map[str(item["type"])] = item
     return defs_map
 
 
-def _collect_signal_nodes(roots: Sequence[Mapping[str, Any]]) -> List[Mapping[str, Any]]:
-    nodes: List[Mapping[str, Any]] = []
+def _collect_signal_nodes(roots: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
+    nodes: list[Mapping[str, Any]] = []
     seen: set[str] = set()
 
     def visit(node: Mapping[str, Any]) -> None:
@@ -170,8 +170,8 @@ def _collect_signal_nodes(roots: Sequence[Mapping[str, Any]]) -> List[Mapping[st
     return nodes
 
 
-def _build_evaluation_order(roots: Sequence[Mapping[str, Any]]) -> List[Mapping[str, Any]]:
-    ordered: List[Mapping[str, Any]] = []
+def _build_evaluation_order(roots: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
+    ordered: list[Mapping[str, Any]] = []
     visited: set[str] = set()
 
     def visit(node: Mapping[str, Any]) -> None:
@@ -194,9 +194,9 @@ def _build_evaluation_order(roots: Sequence[Mapping[str, Any]]) -> List[Mapping[
 
 def _build_node_dependencies(
     node: Mapping[str, Any], signal_defs_map: Mapping[str, Any]
-) -> Tuple[Dict[str, Optional[str]], Dict[str, List[str]]]:
-    singles: Dict[str, Optional[str]] = {}
-    lists: Dict[str, List[str]] = {}
+) -> tuple[dict[str, Optional[str]], dict[str, list[str]]]:
+    singles: dict[str, Optional[str]] = {}
+    lists: dict[str, list[str]] = {}
     defn = signal_defs_map.get(str(node.get("type")))
     if defn and defn.get("params"):
         for param in defn.get("params", []):
@@ -231,7 +231,7 @@ def _build_node_dependencies(
     return singles, lists
 
 
-def _normalize_flags(flags: Optional[Iterable[Any]], length: int, fill_value: bool = False) -> List[bool]:
+def _normalize_flags(flags: Optional[Iterable[Any]], length: int, fill_value: bool = False) -> list[bool]:
     if not flags:
         return [fill_value for _ in range(length)]
     normalized = [bool(flag) for flag in list(flags)[:length]]
@@ -240,8 +240,8 @@ def _normalize_flags(flags: Optional[Iterable[Any]], length: int, fill_value: bo
     return normalized
 
 
-def _truthy_windows(flags: Sequence[bool], timestamps: Sequence[Any]) -> List[Tuple[Any, Any]]:
-    windows: List[Tuple[Any, Any]] = []
+def _truthy_windows(flags: Sequence[bool], timestamps: Sequence[Any]) -> list[tuple[Any, Any]]:
+    windows: list[tuple[Any, Any]] = []
     start = None
     for idx, flag in enumerate(flags):
         if bool(flag):
@@ -257,7 +257,7 @@ def _truthy_windows(flags: Sequence[bool], timestamps: Sequence[Any]) -> List[Tu
     return windows
 
 
-def _map_windows_to_mask(windows: Sequence[Tuple[Any, Any]], timestamps: Sequence[Any]) -> List[bool]:
+def _map_windows_to_mask(windows: Sequence[tuple[Any, Any]], timestamps: Sequence[Any]) -> list[bool]:
     if not timestamps:
         return []
     if not windows:
@@ -275,13 +275,13 @@ def _map_windows_to_mask(windows: Sequence[Tuple[Any, Any]], timestamps: Sequenc
     return mask
 
 
-def _extract_series_timestamps(series: Mapping[str, Any]) -> List[Any]:
+def _extract_series_timestamps(series: Mapping[str, Any]) -> list[Any]:
     timestamps = list(series.get("timestamps") or [])
     if timestamps:
         return timestamps
     data = series.get("data") or []
     if isinstance(data, list):
-        out: List[Any] = []
+        out: list[Any] = []
         for rec in data:
             if isinstance(rec, Mapping):
                 if "ts" in rec:
@@ -292,12 +292,12 @@ def _extract_series_timestamps(series: Mapping[str, Any]) -> List[Any]:
     return []
 
 
-def _detect_time_columns(records: Sequence[Mapping[str, Any]]) -> List[str]:
+def _detect_time_columns(records: Sequence[Mapping[str, Any]]) -> list[str]:
     keys: set[str] = set()
     for rec in records:
         for key in rec:
             keys.add(str(key))
-    time_cols: List[str] = []
+    time_cols: list[str] = []
     for aliases in _TIME_COLUMN_DEFAULTS.values():
         for alias in aliases:
             if alias in keys:
@@ -308,7 +308,7 @@ def _detect_time_columns(records: Sequence[Mapping[str, Any]]) -> List[str]:
 
 def _build_timestamp_columns(
     timestamps: Sequence[Any], existing_time_cols: Sequence[str]
-) -> Tuple[List[str], Dict[str, List[Any]]]:
+) -> tuple[list[str], dict[str, list[Any]]]:
     if not timestamps:
         return list(existing_time_cols), {}
     try:
@@ -317,7 +317,7 @@ def _build_timestamp_columns(
         raise RuntimeError("pandas is required for timestamp parsing") from exc
 
     dt = pd.to_datetime(list(timestamps), errors="coerce")
-    computed: Dict[str, List[Any]] = {}
+    computed: dict[str, list[Any]] = {}
     col_order = list(existing_time_cols)
     for unit, label in _TIME_UNITS:
         aliases = _TIME_COLUMN_DEFAULTS.get(unit, [])
@@ -372,7 +372,7 @@ class TimeframeView:
     feature_fn: Optional[FeatureFunction] = None
     signal_fn: Optional[SignalFunction] = None
 
-    buffer: List[MutableRecord] = field(default_factory=list, init=False)
+    buffer: list[MutableRecord] = field(default_factory=list, init=False)
     features: FeatureDict = field(default_factory=dict, init=False)
     signal: Any = None
 
@@ -410,7 +410,7 @@ class TimeframeView:
         if excess > 0:
             del self.buffer[0:excess]
 
-    def _get_window(self) -> List[Record]:
+    def _get_window(self) -> list[Record]:
         """
         Return the last window_size records as the feature window.
         If buffer is shorter than window_size, return all available records.
@@ -487,7 +487,7 @@ class TimeframeView:
             None,
         )
         timestamps = [rec.get(ts_key) for rec in records] if ts_key else []
-        computed_time_cols: Dict[str, List[Any]] = {}
+        computed_time_cols: dict[str, list[Any]] = {}
         if timestamps:
             time_cols, computed_time_cols = _build_timestamp_columns(timestamps, time_cols)
 
@@ -498,7 +498,7 @@ class TimeframeView:
 
         def _resolve_roots(
             graph: Optional[Union[Mapping[str, Any], Sequence[Mapping[str, Any]]]],
-        ) -> List[Mapping[str, Any]]:
+        ) -> list[Mapping[str, Any]]:
             if not graph:
                 return []
             if isinstance(graph, Mapping):
@@ -546,7 +546,7 @@ class TimeframeView:
             ValueVsRollingPercentileWithThreshold,
         )
 
-        signal_class_map: Dict[str, Any] = {
+        signal_class_map: dict[str, Any] = {
             "ValueVsRollingPercentile": ValueVsRollingPercentile,
             "ValueVsRollingPercentileWithThreshold": ValueVsRollingPercentileWithThreshold,
             "SignalEMADiffVsHistoryPercentile": SignalEMADiffVsHistoryPercentile,
@@ -567,9 +567,9 @@ class TimeframeView:
 
         def _compute_outputs(
             recs: Sequence[Mapping[str, Any]], roots_in: Sequence[Mapping[str, Any]]
-        ) -> Dict[str, List[int]]:
+        ) -> dict[str, list[int]]:
             ordered = _build_evaluation_order(roots_in)
-            runners: Dict[str, Dict[str, Any]] = {}
+            runners: dict[str, dict[str, Any]] = {}
             for node in ordered:
                 node_id = str(node.get("id"))
                 node_type = str(node.get("type"))
@@ -590,10 +590,10 @@ class TimeframeView:
                         instance = None
                 runners[node_id] = {"instance": instance, "deps": deps, "type": node_type, "node": node}
 
-            outputs: Dict[str, List[int]] = {node_id: [] for node_id in runners}
+            outputs: dict[str, list[int]] = {node_id: [] for node_id in runners}
 
-            value_data: Dict[str, List[Any]] = {}
-            value_order: List[str] = []
+            value_data: dict[str, list[Any]] = {}
+            value_order: list[str] = []
             if include_values:
                 for runner in runners.values():
                     node_type = runner["type"]
@@ -605,8 +605,8 @@ class TimeframeView:
                             value_order.append(col_name)
 
             for rec in recs:
-                step_outputs: Dict[str, int] = {}
-                base_features: Dict[str, Any] = {}
+                step_outputs: dict[str, int] = {}
+                base_features: dict[str, Any] = {}
                 if isinstance(rec, Mapping):
                     values = rec.get("values")
                     if isinstance(values, Mapping):
@@ -644,11 +644,11 @@ class TimeframeView:
             outputs["_value_data"] = value_data
             return outputs
 
-        outputs: Dict[str, List[int]] = {}
-        value_col_order: List[str] = []
-        value_data: Dict[str, List[Any]] = {}
-        dep_nodes: List[Mapping[str, Any]] = []
-        target_outputs: List[int] = []
+        outputs: dict[str, list[int]] = {}
+        value_col_order: list[str] = []
+        value_data: dict[str, list[Any]] = {}
+        dep_nodes: list[Mapping[str, Any]] = []
+        target_outputs: list[int] = []
 
         if target_node is not None:
             outputs = _compute_outputs(records, [target_node])
@@ -667,10 +667,10 @@ class TimeframeView:
         current_id = current_series_id or self.name
         current_timestamps = timestamps if timestamps and all(ts is not None for ts in timestamps) else []
 
-        ext_masks: Dict[str, List[bool]] = {}
-        calc_masks: Dict[str, List[bool]] = {}
-        hierar_constraint_order: List[str] = []
-        hierar_constraint_cols: Dict[str, List[int]] = {}
+        ext_masks: dict[str, list[bool]] = {}
+        calc_masks: dict[str, list[bool]] = {}
+        hierar_constraint_order: list[str] = []
+        hierar_constraint_cols: dict[str, list[int]] = {}
 
         def _find_series_index(series_list: Sequence[Mapping[str, Any]], series_id: str) -> int:
             for idx, series in enumerate(series_list):
@@ -679,7 +679,7 @@ class TimeframeView:
                     return idx
             return max(0, len(series_list) - 1)
 
-        higher_series_order: List[str] = []
+        higher_series_order: list[str] = []
         if current_timestamps:
             if hierar_constraint_series:
                 ext_list = list(hierar_constraint_series)
@@ -745,9 +745,9 @@ class TimeframeView:
                 ]
                 hierar_constraint_cols[col_name] = mismatch
 
-        hierar_constraint_all: Optional[List[bool]] = None
+        hierar_constraint_all: Optional[list[bool]] = None
         if current_timestamps and higher_series_order:
-            effective_masks: List[List[bool]] = []
+            effective_masks: list[list[bool]] = []
             for series_name in higher_series_order:
                 if series_name in ext_masks and series_name in calc_masks:
                     effective = [
@@ -773,7 +773,7 @@ class TimeframeView:
             hierar_constraint_cols["hierar_constraint_all"] = [1 for _ in range(len(current_timestamps))]
             hierar_constraint_order.append("hierar_constraint_all")
 
-        column_data: Dict[str, List[Any]] = {}
+        column_data: dict[str, list[Any]] = {}
         for col in time_cols:
             if col in computed_time_cols:
                 column_data[col] = computed_time_cols[col]

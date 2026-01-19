@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any
 
 from .coordinator import MultiScaleCoordinator, TimeframeState
 from .timeframe import TimeframeView
@@ -12,21 +12,21 @@ from .timeframe import TimeframeView
 
 @dataclass
 class HTFFramework:
-    timeframes: Dict[str, TimeframeView]
+    timeframes: dict[str, TimeframeView]
     coordinator: MultiScaleCoordinator
 
-    last_output: Dict[str, Any] = field(default_factory=dict, init=False)
+    last_output: dict[str, Any] = field(default_factory=dict, init=False)
 
     def reset(self) -> None:
         for tf in self.timeframes.values():
             tf.reset()
         self.last_output = {}
 
-    def on_new_record(self, record: Mapping[str, Any]) -> Dict[str, Any]:
+    def on_new_record(self, record: Mapping[str, Any]) -> dict[str, Any]:
         for tf in self.timeframes.values():
             tf.on_new_record(record)
 
-        states: Dict[str, TimeframeState] = {
+        states: dict[str, TimeframeState] = {
             name: TimeframeState(
                 name=tf.name,
                 role=tf.role,

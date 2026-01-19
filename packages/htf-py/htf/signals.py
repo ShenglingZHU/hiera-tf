@@ -6,7 +6,7 @@ import math
 from collections import deque
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Any, Deque, Dict, List, Optional
+from typing import Any, Optional
 
 
 def compute_percentile(values: Iterable[float], q: float) -> Optional[float]:
@@ -68,7 +68,7 @@ class ValueVsRollingPercentile:
     min_history: int = 1
     comparison: str = "gt"
 
-    history: Deque[float] = field(default_factory=deque, init=False)
+    history: deque[float] = field(default_factory=deque, init=False)
 
     def __post_init__(self) -> None:
         cmp_lower = self.comparison.lower()
@@ -81,7 +81,7 @@ class ValueVsRollingPercentile:
         self.history.clear()
         self.last_threshold = None
 
-    def _get_numeric_value(self, features: Dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
@@ -116,7 +116,7 @@ class ValueVsRollingPercentile:
 
         return signal, threshold
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         val = self._get_numeric_value(features)
         signal, threshold = self._compute_signal_and_threshold(val)
         self.last_threshold = threshold
@@ -131,7 +131,7 @@ class ValueVsRollingPercentileWithThreshold(ValueVsRollingPercentile):
 
     last_threshold: Optional[float] = field(default=None, init=False)
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         val = self._get_numeric_value(features)
         signal, threshold = self._compute_signal_and_threshold(val)
         self.last_threshold = threshold
@@ -161,7 +161,7 @@ class SignalRunLengthReached:
         self.active = False
         self.tail_remaining = 0
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         v = features.get(self.signal_key)
 
         # run interrupted
@@ -216,12 +216,12 @@ class SignalRunLengthReachedHistoryPercentile:
     run_trace_limit: Any = _UNSET
 
     current_run: int = 0
-    history_runs: Deque[int] = field(default_factory=deque, init=False)
+    history_runs: deque[int] = field(default_factory=deque, init=False)
     current_threshold: Optional[float] = field(default=None, init=False)
     last_threshold: Optional[float] = field(default=None, init=False)
     active: bool = False
     tail_remaining: int = 0
-    run_trace: List[Dict[str, Any]] = field(default_factory=list, init=False)
+    run_trace: list[dict[str, Any]] = field(default_factory=list, init=False)
 
     def __post_init__(self) -> None:
         if self.history_window <= 0:
@@ -264,7 +264,7 @@ class SignalRunLengthReachedHistoryPercentile:
             if len(self.history_runs) > self.history_window:
                 self.history_runs.popleft()
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         v = features.get(self.signal_key)
 
         if v != self.target_value:
@@ -324,7 +324,7 @@ class SignalRunInterrupted:
         self.current_run = 0
         self.tail_remaining = 0
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         v = features.get(self.signal_key)
 
         # inside a run
@@ -371,7 +371,7 @@ class SignalRunLengthVsHistoryPercentile:
     post_run_extension: int = 0
 
     current_run: int = 0
-    history_runs: Deque[int] = field(default_factory=deque, init=False)
+    history_runs: deque[int] = field(default_factory=deque, init=False)
     active: bool = False
     tail_remaining: int = 0
 
@@ -381,7 +381,7 @@ class SignalRunLengthVsHistoryPercentile:
         self.active = False
         self.tail_remaining = 0
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         v = features.get(self.signal_key)
 
         # run interrupted
@@ -451,13 +451,13 @@ class SignalValueVsLastTrueReference:
     def reset(self) -> None:
         self.last_reference_value = None
 
-    def _get_numeric_value(self, features: Dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
         return None
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         val = self._get_numeric_value(features)
         ref_active = bool(features.get(self.reference_signal_key))
 
@@ -506,13 +506,13 @@ class SignalValueVsLastTargetForBase:
     def reset(self) -> None:
         self.last_target_value = None
 
-    def _get_numeric_value(self, features: Dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
         return None
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         val = self._get_numeric_value(features)
         base_active = bool(features.get(self.base_signal_key))
         target_active = bool(features.get(self.target_signal_key))
@@ -554,13 +554,13 @@ class SignalValueVsPrevious:
     def reset(self) -> None:
         self.previous_value = None
 
-    def _get_numeric_value(self, features: Dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
         return None
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         val = self._get_numeric_value(features)
         signal = 0
 
@@ -597,7 +597,7 @@ class SignalValueVsLastSignalRunStatistic:
     percentile: float = 50.0
     comparison: str = "gt"
 
-    current_run_values: List[float] = field(default_factory=list, init=False)
+    current_run_values: list[float] = field(default_factory=list, init=False)
     in_run: bool = False
     last_statistic: Optional[float] = field(default=None, init=False)
 
@@ -620,13 +620,13 @@ class SignalValueVsLastSignalRunStatistic:
         self.in_run = False
         self.last_statistic = None
 
-    def _get_numeric_value(self, features: Dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
         return None
 
-    def _compute_statistic(self, values: List[float]) -> Optional[float]:
+    def _compute_statistic(self, values: list[float]) -> Optional[float]:
         if not values:
             return None
         if self.statistic == "mean":
@@ -644,7 +644,7 @@ class SignalValueVsLastSignalRunStatistic:
             return val > threshold
         return val < threshold
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         val = self._get_numeric_value(features)
         signal_active = bool(features.get(self.signal_key))
 
@@ -705,7 +705,7 @@ class SignalEMAFastSlowComparison:
         self.ema_1 = None
         self.ema_2 = None
 
-    def _get_numeric_value(self, features: Dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
@@ -722,7 +722,7 @@ class SignalEMAFastSlowComparison:
             return self.ema_1, self.ema_2
         return self.ema_2, self.ema_1
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         val = self._get_numeric_value(features)
         if val is None:
             return 0
@@ -772,8 +772,8 @@ class SignalEMADiffVsHistoryPercentile:
     ema_2: Optional[float] = field(default=None, init=False)
     last_abs_diff: Optional[float] = field(default=None, init=False)
     last_threshold: Optional[float] = field(default=None, init=False)
-    abs_diff_history: Deque[float] = field(default_factory=deque, init=False)
-    trace: List[Dict[str, Optional[float]]] = field(default_factory=list, init=False)
+    abs_diff_history: deque[float] = field(default_factory=deque, init=False)
+    trace: list[dict[str, Optional[float]]] = field(default_factory=list, init=False)
 
     def __post_init__(self) -> None:
         if self.ema_period_1 <= 0 or self.ema_period_2 <= 0:
@@ -801,7 +801,7 @@ class SignalEMADiffVsHistoryPercentile:
         self.abs_diff_history.clear()
         self.trace.clear()
 
-    def _get_numeric_value(self, features: Dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
@@ -813,7 +813,7 @@ class SignalEMADiffVsHistoryPercentile:
             return value
         return value * alpha + current * (1.0 - alpha)
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         val = self._get_numeric_value(features)
         signal = 0
         threshold: Optional[float] = None
@@ -881,7 +881,7 @@ class SignalIntervalBetweenMarkers:
     current_start_index: Optional[int] = None
     last_interval_length: Optional[int] = None
     last_interval_closed_by: Optional[str] = None
-    intervals: List[Dict[str, Any]] = field(default_factory=list, init=False)
+    intervals: list[dict[str, Any]] = field(default_factory=list, init=False)
     step_index: int = 0
 
     def __post_init__(self) -> None:
@@ -915,7 +915,7 @@ class SignalIntervalBetweenMarkers:
         self.current_length = 0
         self.current_start_index = None
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         start_active = bool(features.get(self.start_signal_key))
         end_active = bool(features.get(self.end_signal_key))
         signal = 0
@@ -962,7 +962,7 @@ class SignalNthTargetWithinWindowAfterTrigger:
     window_length: int
     target_index: int
 
-    active_windows: List[Dict[str, int]] = field(default_factory=list, init=False)
+    active_windows: list[dict[str, int]] = field(default_factory=list, init=False)
     last_search_success: Optional[bool] = field(default=None, init=False)
     step_index: int = 0
 
@@ -977,10 +977,10 @@ class SignalNthTargetWithinWindowAfterTrigger:
         self.last_search_success = None
         self.step_index = 0
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         signal = 0
         target_active = bool(features.get(self.target_signal_key))
-        new_active_windows: List[Dict[str, int]] = []
+        new_active_windows: list[dict[str, int]] = []
 
         for window in self.active_windows:
             if target_active:
@@ -1018,7 +1018,7 @@ class SignalIntersection:
     Intersection signal: returns 1 only when all listed signal keys are truthy.
     """
 
-    signal_keys: List[str]
+    signal_keys: list[str]
 
     def __post_init__(self) -> None:
         if len(self.signal_keys) < 2:
@@ -1029,7 +1029,7 @@ class SignalIntersection:
     def reset(self) -> None:
         pass
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         for key in self.signal_keys:
             if not bool(features.get(key)):
                 return 0
@@ -1048,5 +1048,5 @@ class SignalExternalFlag:
     def reset(self) -> None:
         pass
 
-    def __call__(self, features: Dict[str, Any]) -> int:
+    def __call__(self, features: dict[str, Any]) -> int:
         return 1 if features.get(self.signal_key) == self.true_value else 0

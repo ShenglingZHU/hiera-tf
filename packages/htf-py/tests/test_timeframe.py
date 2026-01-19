@@ -5,7 +5,7 @@ Tests for htf.timeframe module.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
@@ -71,7 +71,7 @@ class TestFeatureModule:
         """Test that update calls compute and stores result."""
 
         class TestModule(FeatureModule):
-            def compute(self, window: Sequence[Any]) -> Dict[str, Any]:
+            def compute(self, window: Sequence[Any]) -> dict[str, Any]:
                 return {"count": len(window)}
 
         module = TestModule()

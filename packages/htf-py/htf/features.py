@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from .timeframe import FeatureDict, FeatureModule, Record
 
@@ -13,8 +13,8 @@ def _is_number(x: Any) -> bool:
     return isinstance(x, (int, float)) and not isinstance(x, bool)
 
 
-def _to_float_list(seq: Sequence[Any]) -> List[float]:
-    out: List[float] = []
+def _to_float_list(seq: Sequence[Any]) -> list[float]:
+    out: list[float] = []
     for v in seq:
         if _is_number(v):
             out.append(float(v))
