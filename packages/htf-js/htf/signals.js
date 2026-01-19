@@ -233,10 +233,7 @@
         throw new Error("min_history_runs cannot exceed history_window");
       }
 
-      this.run_trace_limit = resolveLimit(
-        run_trace_limit,
-        Math.max(this.history_window, DEFAULT_TRACE_LIMIT),
-      );
+      this.run_trace_limit = resolveLimit(run_trace_limit, Math.max(this.history_window, DEFAULT_TRACE_LIMIT));
     }
 
     reset() {
@@ -453,9 +450,7 @@
 
     update(features) {
       const val = this._get_numeric_value(features);
-      const ref_active = Boolean(
-        features && this.reference_signal_key ? features[this.reference_signal_key] : false
-      );
+      const ref_active = Boolean(features && this.reference_signal_key ? features[this.reference_signal_key] : false);
 
       if (ref_active) {
         if (val !== null) {
@@ -501,12 +496,8 @@
 
     update(features) {
       const val = this._get_numeric_value(features);
-      const base_active = Boolean(
-        features && this.base_signal_key ? features[this.base_signal_key] : false
-      );
-      const target_active = Boolean(
-        features && this.target_signal_key ? features[this.target_signal_key] : false
-      );
+      const base_active = Boolean(features && this.base_signal_key ? features[this.base_signal_key] : false);
+      const target_active = Boolean(features && this.target_signal_key ? features[this.target_signal_key] : false);
 
       if (target_active && val !== null) {
         this.last_target_value = val;
@@ -566,13 +557,7 @@
   }
 
   class SignalValueVsLastSignalRunStatistic {
-    constructor({
-      value_key,
-      signal_key,
-      statistic = "mean",
-      percentile = 50.0,
-      comparison = "gt",
-    } = {}) {
+    constructor({ value_key, signal_key, statistic = "mean", percentile = 50.0, comparison = "gt" } = {}) {
       this.value_key = value_key;
       this.signal_key = signal_key;
       this.statistic = String(statistic || "mean").toLowerCase();
@@ -778,10 +763,7 @@
         throw new Error("comparison must be 'gt' or 'lt'");
       }
 
-      this.trace_limit = resolveLimit(
-        trace_limit,
-        Math.max(this.history_window, DEFAULT_TRACE_LIMIT),
-      );
+      this.trace_limit = resolveLimit(trace_limit, Math.max(this.history_window, DEFAULT_TRACE_LIMIT));
     }
 
     reset() {
@@ -900,9 +882,7 @@
     }
 
     update(features) {
-      const start_active = Boolean(
-        features && this.start_signal_key ? features[this.start_signal_key] : false
-      );
+      const start_active = Boolean(features && this.start_signal_key ? features[this.start_signal_key] : false);
       const end_active = Boolean(features && this.end_signal_key ? features[this.end_signal_key] : false);
       let signal = 0;
 
@@ -956,9 +936,7 @@
 
     update(features) {
       let signal = 0;
-      const target_active = Boolean(
-        features && this.target_signal_key ? features[this.target_signal_key] : false
-      );
+      const target_active = Boolean(features && this.target_signal_key ? features[this.target_signal_key] : false);
       const next_windows = [];
 
       this.active_windows.forEach((window) => {
@@ -1503,4 +1481,3 @@
   signalGraph.computeSignalOutputs = computeSignalOutputs;
   signalGraph.getSeriesSignalOutputs = getSeriesSignalOutputs;
 })(typeof window !== "undefined" ? window : globalThis);
-

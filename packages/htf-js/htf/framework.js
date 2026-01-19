@@ -16,7 +16,8 @@
     }
 
     reset() {
-      const values = this.timeframes instanceof Map ? Array.from(this.timeframes.values()) : Object.values(this.timeframes);
+      const values =
+        this.timeframes instanceof Map ? Array.from(this.timeframes.values()) : Object.values(this.timeframes);
       values.forEach((tf) => {
         if (tf && typeof tf.reset === "function") {
           tf.reset();
@@ -26,7 +27,8 @@
     }
 
     on_new_record(record) {
-      const entries = this.timeframes instanceof Map ? Array.from(this.timeframes.entries()) : Object.entries(this.timeframes);
+      const entries =
+        this.timeframes instanceof Map ? Array.from(this.timeframes.entries()) : Object.entries(this.timeframes);
       entries.forEach(([, tf]) => {
         if (tf && typeof tf.on_new_record === "function") {
           tf.on_new_record(record);

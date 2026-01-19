@@ -3,8 +3,7 @@
 
 "use strict";
 
-const t = (key, vars) =>
-  window.i18n && typeof window.i18n.t === "function" ? window.i18n.t(key, vars) : key;
+const t = (key, vars) => (window.i18n && typeof window.i18n.t === "function" ? window.i18n.t(key, vars) : key);
 
 const TIME_UNITS = [
   { key: "year", labelKey: "time.year", short: "y", seconds: 31536000 },
@@ -61,7 +60,6 @@ const EXTERNAL_SIGNAL_TYPE = "SignalExternalFlag";
 const EXTERNAL_SIGNAL_PREFIX = "external:";
 
 const SIGNAL_DEFS = [
-
   {
     type: "ValueVsRollingPercentile",
     params: [
@@ -207,9 +205,7 @@ const SIGNAL_DEFS = [
   },
   {
     type: "SignalIntersection",
-    params: [
-      { name: "signal_keys", kind: "signal-list", label: "signal_keys" },
-    ],
+    params: [{ name: "signal_keys", kind: "signal-list", label: "signal_keys" }],
   },
   {
     type: "SignalExternalFlag",
@@ -269,7 +265,9 @@ function normalizeHtfBase(value) {
   if (!value) {
     return "";
   }
-  const trimmed = String(value).trim().replace(/^["']|["']$/g, "");
+  const trimmed = String(value)
+    .trim()
+    .replace(/^["']|["']$/g, "");
   return trimmed.replace(/\/+$/, "");
 }
 
@@ -916,25 +914,20 @@ function buildSeriesName(series) {
 
 function renderSeriesList() {
   if (!state.series.length) {
-    elements.seriesList.innerHTML =
-      `<div class="series-empty"><div class="empty-title">${t("series.empty.title")}</div><div class="empty-desc">${t(
-        "series.empty.desc"
-      )}</div></div>`;
+    elements.seriesList.innerHTML = `<div class="series-empty"><div class="empty-title">${t("series.empty.title")}</div><div class="empty-desc">${t(
+      "series.empty.desc"
+    )}</div></div>`;
     updatePlotModeOptions();
     return;
   }
-  const cards = state.series
-    .map((series) => renderSeriesCard(series))
-    .join("");
+  const cards = state.series.map((series) => renderSeriesCard(series)).join("");
   elements.seriesList.innerHTML = cards;
   updatePlotModeOptions();
 }
 
 function renderSeriesCard(series) {
   const isIncomplete = !isSeriesComplete(series);
-  const badges = [
-    `<span class="badge ${series.role === "LTF" ? "ltf" : ""}">${series.role}</span>`,
-  ];
+  const badges = [`<span class="badge ${series.role === "LTF" ? "ltf" : ""}">${series.role}</span>`];
   if (isIncomplete) {
     badges.push(`<span class="badge incomplete">${t("series.badge.incomplete")}</span>`);
   }
@@ -942,8 +935,7 @@ function renderSeriesCard(series) {
   const valueLabel = series.source ? series.source.valueColumn : "-";
   const unit = TIME_UNITS.find((entry) => entry.key === series.scaleUnit);
   const unitLabel = unit ? t(unit.labelKey) : series.scaleUnit;
-  const scaleLabel =
-    series.scaleValue && unitLabel ? `${series.scaleValue} ${unitLabel}` : t("series.scale.unset");
+  const scaleLabel = series.scaleValue && unitLabel ? `${series.scaleValue} ${unitLabel}` : t("series.scale.unset");
   return `
     <div class="series-card ${isIncomplete ? "is-incomplete" : ""}">
       <div class="series-meta">
@@ -1279,7 +1271,10 @@ function buildDefaultExportName(series) {
 function sanitizeFileName(value) {
   const raw = String(value || "").trim();
   const noControls = Array.from(raw, (ch) => (ch.charCodeAt(0) <= 31 ? "-" : ch)).join("");
-  return noControls.replace(/[<>:"/\\|?*]/g, "-").replace(/\s+/g, " ").trim();
+  return noControls
+    .replace(/[<>:"/\\|?*]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function normalizeExportFileName(raw, extension, series) {
@@ -1609,7 +1604,9 @@ function formatExternalValue(value) {
 }
 
 function getFileType(fileName) {
-  const match = String(fileName || "").toLowerCase().match(/\.([a-z0-9]+)$/);
+  const match = String(fileName || "")
+    .toLowerCase()
+    .match(/\.([a-z0-9]+)$/);
   if (!match) {
     return "";
   }
@@ -1698,8 +1695,7 @@ function renderSourceExistingList(series) {
 
     const cols = document.createElement("div");
     cols.className = "source-file-cols";
-    const columnsText =
-      Array.isArray(source.columns) && source.columns.length ? source.columns.join(", ") : "-";
+    const columnsText = Array.isArray(source.columns) && source.columns.length ? source.columns.join(", ") : "-";
     cols.textContent = t("source.existing.columns", { columns: columnsText });
     info.appendChild(cols);
 
@@ -2029,7 +2025,11 @@ function renderSignalDetail(series) {
       { label: t("externalSignal.summary.trueValue"), value: external ? formatExternalValue(external.trueValue) : "-" },
       {
         label: t("externalSignal.summary.status"),
-        value: external ? (external.valid ? t("externalSignal.status.valid") : t("externalSignal.status.invalid")) : "-",
+        value: external
+          ? external.valid
+            ? t("externalSignal.status.valid")
+            : t("externalSignal.status.invalid")
+          : "-",
       },
     ];
     rows.forEach((row) => {
@@ -2368,13 +2368,9 @@ function handleFileChange(event) {
       const mapping = reuseMapping ? { ...prevSource.mapping } : guessTimeMapping(columns);
       const valueColumn = reuseMapping ? prevSource.valueColumn : numericColumns[0];
       if (!hasMinimumTimeMapping(mapping)) {
-        const requiredUnits = [
-          t("time.year"),
-          t("time.month"),
-          t("time.day"),
-          t("time.hour"),
-          t("time.minute"),
-        ].join("/");
+        const requiredUnits = [t("time.year"), t("time.month"), t("time.day"), t("time.hour"), t("time.minute")].join(
+          "/"
+        );
         showSourceError(t("source.error.insufficientTimeColumns", { units: requiredUnits }));
         return;
       }
@@ -2998,7 +2994,7 @@ function clampZoomRange(axisKey, oldRange, nextRange) {
   if (!Number.isFinite(baseSpan)) {
     return null;
   }
-  const targetSpan = Math.sign(baseSpan || 1) * Math.abs(initialSpan) / clampedScale;
+  const targetSpan = (Math.sign(baseSpan || 1) * Math.abs(initialSpan)) / clampedScale;
   const anchorRatio = computeAnchorRatio(oldRange, nextRange);
   return zoomRangeWithSpan(oldRange, targetSpan, anchorRatio);
 }
@@ -3374,8 +3370,11 @@ function updateSignalStatus(series) {
   const downOk = series.role === "LTF" ? true : Boolean(downNode && isSignalComplete(downNode));
   const externalErrors = Array.isArray(series.externalSignalErrors) ? series.externalSignalErrors : [];
   const externalOk = externalErrors.length === 0;
-  const externalNodesOk = nodes.filter((node) => isExternalSignalNode(node)).every((node) => getExternalSignalConfig(series, node));
-  series.status.signals = hasSignals && allComplete && duplicateIds.size === 0 && downOk && externalOk && externalNodesOk;
+  const externalNodesOk = nodes
+    .filter((node) => isExternalSignalNode(node))
+    .every((node) => getExternalSignalConfig(series, node));
+  series.status.signals =
+    hasSignals && allComplete && duplicateIds.size === 0 && downOk && externalOk && externalNodesOk;
 }
 
 function isSignalComplete(node) {
@@ -3809,13 +3808,7 @@ function buildExternalSignalBinding(series, draft) {
   }
   const mapping = normalizeTimeMapping(draft.mapping || {});
   if (!hasMinimumTimeMapping(mapping)) {
-    const requiredUnits = [
-      t("time.year"),
-      t("time.month"),
-      t("time.day"),
-      t("time.hour"),
-      t("time.minute"),
-    ].join("/");
+    const requiredUnits = [t("time.year"), t("time.month"), t("time.day"), t("time.hour"), t("time.minute")].join("/");
     return { error: t("externalSignal.error.insufficientTimeColumns", { units: requiredUnits }) };
   }
   if (!draft.signalColumn) {
@@ -4549,9 +4542,7 @@ async function handleTemplateSaveConfirm() {
   const merged = mergeTemplatesByName(existing, [template], { replace: true });
   saveSignalTemplates(merged.templates);
 
-  const baseMessage = merged.replaced.length
-    ? t("template.save.overwrite")
-    : t("template.save.saved");
+  const baseMessage = merged.replaced.length ? t("template.save.overwrite") : t("template.save.saved");
   const fileResult = await saveTemplateToFile(template);
   let message = baseMessage;
   let kind = "success";
@@ -6663,9 +6654,7 @@ function setIntersectionExportStatus(message, kind = "") {
 function buildVizPickerOptions(series) {
   const signalNodes = collectSignalNodes(series);
   const existingLabels = new Set(series.viz.elements.map((el) => el.label));
-  const existingSignalIds = new Set(
-    series.viz.elements.filter((el) => el.type === "signal").map((el) => el.signalId)
-  );
+  const existingSignalIds = new Set(series.viz.elements.filter((el) => el.type === "signal").map((el) => el.signalId));
   const options = [];
   const lineLabel = getDefaultVizLabel("line");
   const rawLabel = getDefaultVizLabel("raw");
@@ -6988,7 +6977,6 @@ function renderPlot() {
   renderLegend(traces, overlays.legendItems);
   syncIntersectionControls();
 }
-
 
 function renderLegend(traces, overlayItems) {
   const legendItems = traces

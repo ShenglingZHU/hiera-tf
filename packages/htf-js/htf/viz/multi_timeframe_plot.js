@@ -52,7 +52,8 @@
     return segments;
   };
 
-  const getLineElement = (series) => (series && series.viz ? series.viz.elements.find((el) => el.type === "line") : null);
+  const getLineElement = (series) =>
+    series && series.viz ? series.viz.elements.find((el) => el.type === "line") : null;
 
   const getRawElement = (series) => (series && series.viz ? series.viz.elements.find((el) => el.type === "raw") : null);
 
@@ -135,8 +136,8 @@
       ? signalGraph.getSeriesSignalOutputs
         ? signalGraph.getSeriesSignalOutputs(series, options ? options.signalCache : null)
         : signalGraph.computeSignalOutputs
-        ? signalGraph.computeSignalOutputs(series)
-        : new Map()
+          ? signalGraph.computeSignalOutputs(series)
+          : new Map()
       : new Map();
     const baseSignalId = findBaseSignalId(series);
     const gateMask = resolveGateMask(options ? options.gateMasks : null, series.id || series.name);
@@ -151,12 +152,7 @@
           line: {
             color: element.color,
             width: element.lineWidth,
-            dash:
-              element.lineStyle === "solid"
-                ? "solid"
-                : element.lineStyle === "dashed"
-                ? "dash"
-                : "dot",
+            dash: element.lineStyle === "solid" ? "solid" : element.lineStyle === "dashed" ? "dash" : "dot",
           },
           xaxis: axisX,
           yaxis: axisY,
@@ -403,7 +399,9 @@
     if (baseSignalId) {
       excludedSignals.add(baseSignalId);
     }
-    traces.push(...buildSignalTracesForSeries(ltf, "x", "y", { outputs, excludeIds: excludedSignals, showlegend: true }));
+    traces.push(
+      ...buildSignalTracesForSeries(ltf, "x", "y", { outputs, excludeIds: excludedSignals, showlegend: true })
+    );
 
     if (baseSignalId) {
       const gateMask = resolveGateMask(options ? options.gateMasks : null, ltfSeries.id || ltfSeries.name);
@@ -550,7 +548,9 @@
     if (baseSignalId) {
       excludedSignals.add(baseSignalId);
     }
-    traces.push(...buildSignalTracesForSeries(ltf, "x", "y", { outputs, excludeIds: excludedSignals, showlegend: true }));
+    traces.push(
+      ...buildSignalTracesForSeries(ltf, "x", "y", { outputs, excludeIds: excludedSignals, showlegend: true })
+    );
 
     if (baseSignalId) {
       const gateMask = resolveGateMask(options ? options.gateMasks : null, ltfSeries.id || ltfSeries.name);

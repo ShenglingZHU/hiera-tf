@@ -742,9 +742,7 @@
         const effectiveMasks = [];
         higherSeriesOrder.forEach((seriesName) => {
           if (extMasks[seriesName] && calcMasks[seriesName]) {
-            effectiveMasks.push(
-              extMasks[seriesName].map((v, idx) => v && calcMasks[seriesName][idx]),
-            );
+            effectiveMasks.push(extMasks[seriesName].map((v, idx) => v && calcMasks[seriesName][idx]));
           } else if (extMasks[seriesName]) {
             effectiveMasks.push(extMasks[seriesName]);
           } else if (calcMasks[seriesName]) {
@@ -817,4 +815,3 @@
   HTF.FeatureModule = FeatureModule;
   HTF.TimeframeView = TimeframeView;
 })(typeof window !== "undefined" ? window : globalThis);
-
