@@ -1329,7 +1329,7 @@
           comparison: normalizeComparison(getParamOrDefault(node, def, "comparison"), "gt"),
         };
       case "SignalEMAFastSlowComparison": {
-        let ema_period_1 = toPositiveInt(getParamOrDefault(node, def, "ema_period_1"), 12);
+        const ema_period_1 = toPositiveInt(getParamOrDefault(node, def, "ema_period_1"), 12);
         let ema_period_2 = toPositiveInt(getParamOrDefault(node, def, "ema_period_2"), 26);
         if (ema_period_1 === ema_period_2) {
           ema_period_2 = ema_period_1 + 1;
