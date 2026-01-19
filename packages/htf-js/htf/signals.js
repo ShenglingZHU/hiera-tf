@@ -1387,7 +1387,7 @@
     if (SignalClass) {
       try {
         instance = new SignalClass(options);
-      } catch (err) {
+      } catch (_err) {
         instance = null;
       }
     }
@@ -1495,3 +1495,4 @@
   signalGraph.computeSignalOutputs = computeSignalOutputs;
   signalGraph.getSeriesSignalOutputs = getSeriesSignalOutputs;
 })(typeof window !== "undefined" ? window : globalThis);
+

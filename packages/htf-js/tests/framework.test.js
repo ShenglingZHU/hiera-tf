@@ -3,11 +3,11 @@
  */
 "use strict";
 
-const { describe, it, beforeEach } = require("node:test");
+const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
 require("./setup.js");
-const { HTFFramework, TimeframeState } = HTF;
+const { HTFFramework } = HTF;
 
 describe("HTFFramework", () => {
   it("should initialize with timeframes and coordinator", () => {
@@ -142,3 +142,5 @@ describe("HTFFramework Integration", () => {
     assert.ok("coordination" in result);
   });
 });
+
+

@@ -3,7 +3,7 @@
  */
 "use strict";
 
-const { describe, it, beforeEach } = require("node:test");
+const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
 require("./setup.js");
@@ -167,7 +167,7 @@ describe("Integration: Coordinator Usage", () => {
 
 describe("Integration: Framework Usage", () => {
   it("should create and use framework", () => {
-    const { HTFFramework, TimeframeState } = HTF;
+    const { HTFFramework } = HTF;
 
     const mockTf = {
       name: "test",
@@ -209,3 +209,5 @@ describe("Integration: Reset Behavior", () => {
     assert.strictEqual(sig.last_threshold, null);
   });
 });
+
+

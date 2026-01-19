@@ -548,7 +548,7 @@
           if (typeof SignalClass === "function") {
             try {
               instance = new SignalClass(options);
-            } catch (err) {
+            } catch (_err) {
               instance = null;
             }
           }
@@ -805,3 +805,4 @@
   HTF.FeatureModule = FeatureModule;
   HTF.TimeframeView = TimeframeView;
 })(typeof window !== "undefined" ? window : globalThis);
+

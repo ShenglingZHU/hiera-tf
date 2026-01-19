@@ -3,7 +3,7 @@
  */
 "use strict";
 
-const { describe, it, beforeEach } = require("node:test");
+const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
 require("./setup.js");
@@ -169,3 +169,4 @@ describe("LastRecordEchoFeature", () => {
     assert.strictEqual(result.null_val, null);
   });
 });
+

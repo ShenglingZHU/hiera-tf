@@ -3,7 +3,7 @@
  */
 "use strict";
 
-const { describe, it, beforeEach } = require("node:test");
+const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
 require("./setup.js");
@@ -140,3 +140,4 @@ describe("HierarConstraintCoordinator", () => {
     assert.strictEqual(result.raw_map.child, 1);
   });
 });
+

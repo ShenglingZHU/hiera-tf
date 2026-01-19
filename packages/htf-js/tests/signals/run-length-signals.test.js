@@ -3,7 +3,7 @@
  */
 "use strict";
 
-const { describe, it, beforeEach } = require("node:test");
+const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
 require("../setup.js");
@@ -270,3 +270,4 @@ describe("SignalRunLengthVsHistoryPercentile", () => {
     assert.strictEqual(result, 1);
   });
 });
+

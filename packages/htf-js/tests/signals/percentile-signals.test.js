@@ -3,7 +3,7 @@
  */
 "use strict";
 
-const { describe, it, beforeEach } = require("node:test");
+const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
 require("../setup.js");
@@ -200,3 +200,4 @@ describe("ValueVsRollingPercentileWithThreshold", () => {
     assert.ok(Math.abs(sig.last_threshold - 2) < 0.001);
   });
 });
+
