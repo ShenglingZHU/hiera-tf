@@ -293,7 +293,7 @@ const HTF_SCRIPT_SOURCES = HTF_SCRIPT_FILES.map((file) => `${HTF_BASE}/${file}`)
 
 function loadScriptOnce(src) {
   return new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[data-htf-src=\"${src}\"]`);
+    const existing = document.querySelector(`script[data-htf-src="${src}"]`);
     if (existing) {
       if (existing.dataset.loaded === "true") {
         resolve();
