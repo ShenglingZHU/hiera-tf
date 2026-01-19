@@ -295,7 +295,7 @@ def _extract_series_timestamps(series: Mapping[str, Any]) -> List[Any]:
 def _detect_time_columns(records: Sequence[Mapping[str, Any]]) -> List[str]:
     keys: set[str] = set()
     for rec in records:
-        for key in rec.keys():
+        for key in rec:
             keys.add(str(key))
     time_cols: List[str] = []
     for aliases in _TIME_COLUMN_DEFAULTS.values():
