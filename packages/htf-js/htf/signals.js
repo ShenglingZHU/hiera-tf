@@ -3,9 +3,18 @@
 ((global) => {
   "use strict";
 
-  const HTF = global.HTF || (global.HTF = {});
-  const signals = HTF.signals || (HTF.signals = {});
-  const signalGraph = HTF.signalGraph || (HTF.signalGraph = {});
+  if (!global.HTF) {
+    global.HTF = {};
+  }
+  const HTF = global.HTF;
+  if (!HTF.signals) {
+    HTF.signals = {};
+  }
+  if (!HTF.signalGraph) {
+    HTF.signalGraph = {};
+  }
+  const signals = HTF.signals;
+  const signalGraph = HTF.signalGraph;
 
   const isNumber = (value) => typeof value === "number" && Number.isFinite(value);
   const DEFAULT_TRACE_LIMIT = 1000;

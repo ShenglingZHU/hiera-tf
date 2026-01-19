@@ -3,7 +3,10 @@
 ((global) => {
   "use strict";
 
-  const HTF = global.HTF || (global.HTF = {});
+  if (!global.HTF) {
+    global.HTF = {};
+  }
+  const HTF = global.HTF;
   const signalGraph = HTF.signalGraph || {};
 
   const utils = HTF.utils;

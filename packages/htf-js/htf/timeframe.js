@@ -3,7 +3,10 @@
 ((global) => {
   "use strict";
 
-  const HTF = global.HTF || (global.HTF = {});
+  if (!global.HTF) {
+    global.HTF = {};
+  }
+  const HTF = global.HTF;
 
   const TIME_COLUMN_DEFAULTS = {
     year: ["year", "Year", "YEAR", "yyyy", "YYYY"],
