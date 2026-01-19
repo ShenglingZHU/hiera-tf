@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2025-2026 ZHU Shengling
-(function (global) {
+((global) => {
   "use strict";
 
   const HTF = global.HTF || (global.HTF = {});
