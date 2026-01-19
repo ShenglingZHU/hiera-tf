@@ -1294,7 +1294,9 @@ function detectExportTimeColumns(rows) {
     if (!row) {
       return;
     }
-    Object.keys(row).forEach((key) => keys.add(key));
+    Object.keys(row).forEach((key) => {
+      keys.add(key);
+    });
   });
   const columns = [];
   Object.entries(TIME_COLUMN_DEFAULTS).forEach(([, aliases]) => {
@@ -2223,7 +2225,9 @@ function renderDependencyItem(node, series) {
 function getOrderedChildren(node) {
   const children = [];
   Object.values(node.children || {}).forEach((list) => {
-    list.forEach((child) => children.push(child));
+    list.forEach((child) => {
+      children.push(child);
+    });
   });
   return children.sort((a, b) => (a.order || 0) - (b.order || 0));
 }
@@ -2415,7 +2419,9 @@ function readFile(file) {
 function collectColumns(rows) {
   const colSet = new Set();
   rows.forEach((row) => {
-    Object.keys(row).forEach((key) => colSet.add(key));
+    Object.keys(row).forEach((key) => {
+      colSet.add(key);
+    });
   });
   return Array.from(colSet);
 }
@@ -4906,10 +4912,14 @@ function collectSignalNodes(series) {
     }
     nodes.push(node);
     Object.values(node.children || {}).forEach((list) => {
-      list.forEach((child) => visit(child));
+      list.forEach((child) => {
+        visit(child);
+      });
     });
   };
-  series.signals.items.forEach((root) => visit(root));
+  series.signals.items.forEach((root) => {
+    visit(root);
+  });
   return nodes;
 }
 
@@ -4927,10 +4937,14 @@ function findSignalNode(series, nodeId) {
       return;
     }
     Object.values(node.children || {}).forEach((list) => {
-      list.forEach((child) => visit(child));
+      list.forEach((child) => {
+        visit(child);
+      });
     });
   };
-  series.signals.items.forEach((root) => visit(root));
+  series.signals.items.forEach((root) => {
+    visit(root);
+  });
   return found;
 }
 
@@ -4956,7 +4970,9 @@ function findSignalParent(series, nodeId) {
       });
     });
   };
-  series.signals.items.forEach((root) => visit(root));
+  series.signals.items.forEach((root) => {
+    visit(root);
+  });
   return result;
 }
 
@@ -5013,7 +5029,9 @@ function getDuplicateSignalIds(series) {
   const duplicates = new Set();
   signatures.forEach((ids) => {
     if (ids.length > 1) {
-      ids.forEach((id) => duplicates.add(id));
+      ids.forEach((id) => {
+        duplicates.add(id);
+      });
     }
   });
   return duplicates;
@@ -5130,7 +5148,9 @@ function collectExternalIds(node, ids) {
     ids.add(node.externalId);
   }
   Object.values(node.children || {}).forEach((list) => {
-    list.forEach((child) => collectExternalIds(child, ids));
+    list.forEach((child) => {
+      collectExternalIds(child, ids);
+    });
   });
 }
 
@@ -5150,7 +5170,9 @@ function removeSignalNode(nodeId) {
   if (idx !== -1) {
     series.signals.items.splice(idx, 1);
   } else {
-    series.signals.items.forEach((root) => removeSignalNodeRecursive(root, nodeId));
+    series.signals.items.forEach((root) => {
+      removeSignalNodeRecursive(root, nodeId);
+    });
   }
   if (series.signals.downwardSignalId === nodeId) {
     series.signals.downwardSignalId = "";
@@ -5181,7 +5203,9 @@ function removeSignalNodeRecursive(node, nodeId) {
   }
   Object.keys(node.children).forEach((key) => {
     node.children[key] = (node.children[key] || []).filter((child) => child.id !== nodeId);
-    node.children[key].forEach((child) => removeSignalNodeRecursive(child, nodeId));
+    node.children[key].forEach((child) => {
+      removeSignalNodeRecursive(child, nodeId);
+    });
   });
 }
 
@@ -6034,7 +6058,9 @@ function syncIntersectionSelection(availableIds) {
   const selected = state.hierarConstraintIntersection.selectedSeriesIds;
   if (!state.hierarConstraintIntersection.selectionInitialized) {
     selected.clear();
-    availableIds.forEach((id) => selected.add(id));
+    availableIds.forEach((id) => {
+      selected.add(id);
+    });
     state.hierarConstraintIntersection.selectionInitialized = true;
     state.hierarConstraintIntersection.selectionMode = "all";
     return;
@@ -6047,7 +6073,9 @@ function syncIntersectionSelection(availableIds) {
   });
 
   if (state.hierarConstraintIntersection.selectionMode === "all") {
-    availableIds.forEach((id) => selected.add(id));
+    availableIds.forEach((id) => {
+      selected.add(id);
+    });
   }
 }
 
@@ -6141,7 +6169,9 @@ function handleIntersectionSelectAll() {
   state.hierarConstraintIntersection.selectionMode = "all";
   state.hierarConstraintIntersection.selectionInitialized = true;
   state.hierarConstraintIntersection.selectedSeriesIds.clear();
-  availableIds.forEach((id) => state.hierarConstraintIntersection.selectedSeriesIds.add(id));
+  availableIds.forEach((id) => {
+    state.hierarConstraintIntersection.selectedSeriesIds.add(id);
+  });
   renderIntersectionSignalList();
   renderPlot();
 }

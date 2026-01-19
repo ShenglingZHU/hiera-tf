@@ -1231,12 +1231,16 @@
       }
       visited.add(node.id);
       Object.values(node.children || {}).forEach((list) => {
-        list.forEach((child) => visit(child));
+        list.forEach((child) => {
+          visit(child);
+        });
       });
       ordered.push(node);
     };
     const roots = series && series.signals ? series.signals.items || [] : [];
-    roots.forEach((root) => visit(root));
+    roots.forEach((root) => {
+      visit(root);
+    });
     return ordered;
   };
 
@@ -1411,10 +1415,14 @@
     }
 
     const runners = new Map();
-    ordered.forEach((node) => runners.set(node.id, createSignalRunner(node)));
+    ordered.forEach((node) => {
+      runners.set(node.id, createSignalRunner(node));
+    });
 
     const outputs = new Map();
-    ordered.forEach((node) => outputs.set(node.id, []));
+    ordered.forEach((node) => {
+      outputs.set(node.id, []);
+    });
 
     series.data.forEach((point) => {
       const stepOutputs = new Map();

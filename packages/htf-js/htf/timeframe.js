@@ -157,7 +157,9 @@
       if (!rec) {
         return;
       }
-      Object.keys(rec).forEach((key) => keys.add(key));
+      Object.keys(rec).forEach((key) => {
+        keys.add(key);
+      });
     });
     const cols = [];
     TIME_UNITS.forEach((unit) => {
@@ -253,10 +255,14 @@
       nodes.push(node);
       const children = node.children || {};
       Object.values(children).forEach((list) => {
-        (list || []).forEach((child) => visit(child));
+        (list || []).forEach((child) => {
+          visit(child);
+        });
       });
     };
-    (roots || []).forEach((root) => visit(root));
+    (roots || []).forEach((root) => {
+      visit(root);
+    });
     return nodes;
   };
 
@@ -270,11 +276,15 @@
       visited.add(node.id);
       const children = node.children || {};
       Object.values(children).forEach((list) => {
-        (list || []).forEach((child) => visit(child));
+        (list || []).forEach((child) => {
+          visit(child);
+        });
       });
       ordered.push(node);
     };
-    (roots || []).forEach((root) => visit(root));
+    (roots || []).forEach((root) => {
+      visit(root);
+    });
     return ordered;
   };
 
@@ -556,7 +566,9 @@
         });
 
         const outputs = new Map();
-        runners.forEach((_value, key) => outputs.set(key, []));
+        runners.forEach((_value, key) => {
+          outputs.set(key, []);
+        });
 
         const valueData = {};
         const valueOrder = [];

@@ -59,7 +59,9 @@
           .split(",")
           .map((attr) => attr.trim())
           .filter(Boolean)
-          .forEach((attr) => node.setAttribute(attr, value));
+          .forEach((attr) => {
+            node.setAttribute(attr, value);
+          });
         return;
       }
       node.textContent = value;
