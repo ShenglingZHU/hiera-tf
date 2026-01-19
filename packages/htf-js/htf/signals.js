@@ -1201,7 +1201,7 @@
         features[key] = val;
       });
     }
-    if (Object.prototype.hasOwnProperty.call(point, "value")) {
+    if (Object.hasOwn(point, "value")) {
       features.value = point.value;
     }
     return features;

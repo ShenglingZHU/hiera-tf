@@ -68,7 +68,7 @@
       const last = window[window.length - 1] || {};
       const out = {};
       this.fields.forEach((name) => {
-        out[name] = Object.prototype.hasOwnProperty.call(last, name) ? last[name] : null;
+        out[name] = Object.hasOwn(last, name) ? last[name] : null;
       });
       return out;
     }

@@ -322,7 +322,7 @@
         features[key] = val;
       });
     }
-    if (Object.prototype.hasOwnProperty.call(record, "value")) {
+    if (Object.hasOwn(record, "value")) {
       features.value = record.value;
     }
     return features;
@@ -386,7 +386,7 @@
       this.buffer = [];
       this.features = {};
       this.signal = null;
-      if (this.feature_module && Object.prototype.hasOwnProperty.call(this.feature_module, "last_features")) {
+      if (this.feature_module && Object.hasOwn(this.feature_module, "last_features")) {
         this.feature_module.last_features = {};
       }
     }
@@ -474,7 +474,7 @@
         tsCandidates.push(timestamp_key);
       }
       tsCandidates.push("timestamp", "ts");
-      const tsKey = tsCandidates.find((key) => records.some((rec) => rec && Object.prototype.hasOwnProperty.call(rec, key)));
+      const tsKey = tsCandidates.find((key) => records.some((rec) => rec && Object.hasOwn(rec, key)));
       const timestamps = tsKey ? records.map((rec) => (rec ? rec[tsKey] : null)) : [];
       const { cols: orderedTimeCols, computed: computedTimeCols } = timestamps.length
         ? buildTimestampColumns(timestamps, timeCols)
@@ -566,7 +566,7 @@
             const baseName = nodeAlias(runner.node);
             attrs.forEach((attr) => {
               const col = `${baseName}_${attr}`;
-              if (!Object.prototype.hasOwnProperty.call(valueData, col)) {
+              if (!Object.hasOwn(valueData, col)) {
                 valueData[col] = [];
                 valueOrder.push(col);
               }
@@ -636,7 +636,7 @@
           if (!rec) {
             return 0;
           }
-          const raw = Object.prototype.hasOwnProperty.call(rec, aliasKey) ? rec[aliasKey] : rec[typeKey];
+          const raw = Object.hasOwn(rec, aliasKey) ? rec[aliasKey] : rec[typeKey];
           return raw ? 1 : 0;
         });
       }
@@ -757,7 +757,7 @@
 
       const columnData = {};
       orderedTimeCols.forEach((col) => {
-        if (Object.prototype.hasOwnProperty.call(computedTimeCols, col)) {
+        if (Object.hasOwn(computedTimeCols, col)) {
           columnData[col] = computedTimeCols[col];
         } else {
           columnData[col] = records.map((rec) => (rec ? rec[col] : null));
