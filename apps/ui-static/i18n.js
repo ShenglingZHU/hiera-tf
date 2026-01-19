@@ -33,7 +33,7 @@
       if (typeof value !== "string") {
         return String(value);
       }
-      return value.replace(/\{(\w+)\}/g, (match, name) => {
+      return value.replace(/\{(\w+)\}/g, (_match, name) => {
         if (Object.prototype.hasOwnProperty.call(vars, name)) {
           return String(vars[name]);
         }
