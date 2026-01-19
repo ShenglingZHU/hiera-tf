@@ -42,9 +42,7 @@ def _bokeh_is_datetime_like(x: Sequence[Any]) -> bool:
     except Exception:
         pass
 
-    if hasattr(x0, "to_pydatetime"):
-        return True
-    return False
+    return bool(hasattr(x0, "to_pydatetime"))
 
 
 def _figsize_to_pixels(figsize: Tuple[int, int]) -> Tuple[int, int]:
