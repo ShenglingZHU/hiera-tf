@@ -981,7 +981,7 @@
 
       this.active_windows = next_windows;
 
-      if (Boolean(features && this.trigger_signal_key ? features[this.trigger_signal_key] : false)) {
+      if (features && this.trigger_signal_key ? features[this.trigger_signal_key] : false) {
         this.active_windows.push({
           remaining_steps: this.window_length,
           seen_targets: 0,
@@ -1010,7 +1010,7 @@
 
     update(features) {
       for (const key of this.signal_keys) {
-        if (!Boolean(features && key ? features[key] : false)) {
+        if (!(features && key ? features[key] : false)) {
           return 0;
         }
       }
