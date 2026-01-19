@@ -2793,7 +2793,6 @@ function aggregateValues(values, method, percentile) {
       return percentileValue(nums, 50);
     case "percentile":
       return percentileValue(nums, percentile ?? 50);
-    case "mean":
     default:
       return nums.reduce((sum, v) => sum + v, 0) / nums.length;
   }
@@ -7056,5 +7055,4 @@ document.addEventListener("DOMContentLoaded", () => {
 window.addEventListener("i18n:changed", () => {
   refreshI18nUi();
 });
-
 
