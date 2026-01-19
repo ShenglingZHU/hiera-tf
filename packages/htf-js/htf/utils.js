@@ -3,8 +3,15 @@
 ((global) => {
   "use strict";
 
-  const HTF = global.HTF || (global.HTF = {});
-  const utils = HTF.utils || (HTF.utils = {});
+  if (!global.HTF) {
+    global.HTF = {};
+  }
+  const HTF = global.HTF;
+
+  if (!HTF.utils) {
+    HTF.utils = {};
+  }
+  const utils = HTF.utils;
 
   const normalizeFlagSeries = (flags, length, fillValue) => {
     const filled = Array.isArray(flags) ? flags.slice(0, length) : [];

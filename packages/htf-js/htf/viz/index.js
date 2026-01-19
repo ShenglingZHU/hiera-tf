@@ -3,8 +3,15 @@
 ((global) => {
   "use strict";
 
-  const HTF = global.HTF || (global.HTF = {});
-  const viz = HTF.viz || (HTF.viz = {});
+  if (!global.HTF) {
+    global.HTF = {};
+  }
+  const HTF = global.HTF;
+
+  if (!HTF.viz) {
+    HTF.viz = {};
+  }
+  const viz = HTF.viz;
 
   viz.__all__ = [
     "setColorPalette",
