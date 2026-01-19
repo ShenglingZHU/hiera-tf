@@ -135,7 +135,7 @@
     const map = new Map();
     if (Array.isArray(defs)) {
       defs.forEach((def) => {
-        if (def && def.type) {
+        if (def?.type) {
           map.set(def.type, def);
         }
       });
@@ -143,7 +143,7 @@
     }
     if (typeof defs === "object") {
       Object.values(defs).forEach((def) => {
-        if (def && def.type) {
+        if (def?.type) {
           map.set(def.type, def);
         }
       });
@@ -299,7 +299,7 @@
         if (!name) {
           return;
         }
-        const children = (node.children && node.children[name]) || [];
+        const children = node.children?.[name] || [];
         if (kind === "signal") {
           const child = children[0];
           singles[name] = child ? child.id : null;
@@ -339,7 +339,7 @@
   };
 
   const getSignalClass = (type) => {
-    const registry = global.HTF && global.HTF.signals ? global.HTF.signals : null;
+    const registry = global.HTF?.signals ? global.HTF.signals : null;
     if (!registry || !type) {
       return null;
     }

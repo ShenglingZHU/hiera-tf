@@ -1186,7 +1186,7 @@
   };
 
   const getParamOrDefault = (node, def, name) => {
-    const raw = node && node.params ? node.params[name] : undefined;
+    const raw = node?.params ? node.params[name] : undefined;
     if (raw !== undefined && raw !== null && raw !== "") {
       return raw;
     }
@@ -1215,7 +1215,7 @@
       });
       ordered.push(node);
     };
-    const roots = series && series.signals ? series.signals.items || [] : [];
+    const roots = series?.signals ? series.signals.items || [] : [];
     roots.forEach((root) => {
       visit(root);
     });
@@ -1230,10 +1230,10 @@
     }
     def.params.forEach((param) => {
       if (param.kind === "signal") {
-        const child = (node.children && node.children[param.name] ? node.children[param.name] : [])[0] || null;
+        const child = (node.children?.[param.name] ? node.children[param.name] : [])[0] || null;
         singles[param.name] = child ? child.id : null;
       } else if (param.kind === "signal-list") {
-        const list = node.children && node.children[param.name] ? node.children[param.name] : [];
+        const list = node.children?.[param.name] ? node.children[param.name] : [];
         lists[param.name] = list.map((child) => child.id);
       }
     });
@@ -1409,7 +1409,7 @@
       ordered.forEach((node) => {
         const runner = runners.get(node.id);
         let value = 0;
-        if (runner && runner.instance) {
+        if (runner?.instance) {
           const features = { ...pointFeatures };
           Object.values(runner.deps.singles).forEach((depId) => {
             if (depId) {
@@ -1441,7 +1441,7 @@
     if (!series.signals || !series.signals.items || !series.signals.items.length) {
       return new Map();
     }
-    if (cache && cache.has(series.id)) {
+    if (cache?.has(series.id)) {
       return cache.get(series.id);
     }
     const outputs = computeSignalOutputs(series);
@@ -1463,13 +1463,13 @@
     signalDefs = new Map();
     if (Array.isArray(defs)) {
       defs.forEach((def) => {
-        if (def && def.type) {
+        if (def?.type) {
           signalDefs.set(def.type, def);
         }
       });
     } else {
       Object.values(defs).forEach((def) => {
-        if (def && def.type) {
+        if (def?.type) {
           signalDefs.set(def.type, def);
         }
       });

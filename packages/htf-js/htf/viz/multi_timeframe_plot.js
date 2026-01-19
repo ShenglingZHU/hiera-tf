@@ -52,13 +52,12 @@
     return segments;
   };
 
-  const getLineElement = (series) =>
-    series && series.viz ? series.viz.elements.find((el) => el.type === "line") : null;
+  const getLineElement = (series) => (series?.viz ? series.viz.elements.find((el) => el.type === "line") : null);
 
-  const getRawElement = (series) => (series && series.viz ? series.viz.elements.find((el) => el.type === "raw") : null);
+  const getRawElement = (series) => (series?.viz ? series.viz.elements.find((el) => el.type === "raw") : null);
 
   const getSignalElements = (series) =>
-    series && series.viz ? series.viz.elements.filter((el) => el.type === "signal" && el.signalId) : [];
+    series?.viz ? series.viz.elements.filter((el) => el.type === "signal" && el.signalId) : [];
 
   const findBaseSignalId = (series) => {
     const elements = getSignalElements(series);

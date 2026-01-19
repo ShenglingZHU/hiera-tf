@@ -102,13 +102,13 @@
       }
       const meta = seriesList.map((series, idx) => {
         const id = series && (series.id || series.name) ? series.id || series.name : `series-${idx}`;
-        const data = Array.isArray(series && series.data) ? series.data : [];
+        const data = Array.isArray(series?.data) ? series.data : [];
         const timestamps = data.length
           ? data.map((point) => point.ts)
           : Array.isArray(series.timestamps)
             ? series.timestamps
             : [];
-        const downId = series && series.signals ? series.signals.downwardSignalId : "";
+        const downId = series?.signals ? series.signals.downwardSignalId : "";
         let windows = null;
         if (downId) {
           const outputs = signalGraph.getSeriesSignalOutputs
