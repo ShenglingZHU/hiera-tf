@@ -1278,7 +1278,8 @@ function buildDefaultExportName(series) {
 
 function sanitizeFileName(value) {
   const raw = String(value || "").trim();
-  return raw.replace(/[<>:"/\\|?*\x00-\x1F]/g, "-").replace(/\s+/g, " ").trim();
+  const noControls = Array.from(raw, (ch) => (ch.charCodeAt(0) <= 31 ? "-" : ch)).join("");
+  return noControls.replace(/[<>:"/\\|?*]/g, "-").replace(/\s+/g, " ").trim();
 }
 
 function normalizeExportFileName(raw, extension, series) {
