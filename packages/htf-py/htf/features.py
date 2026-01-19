@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 from .timeframe import FeatureDict, FeatureModule, Record
 
@@ -21,7 +21,7 @@ def _to_float_list(seq: Sequence[Any]) -> list[float]:
     return out
 
 
-def _mean(values: Sequence[float]) -> Optional[float]:
+def _mean(values: Sequence[float]) -> float | None:
     if not values:
         return None
     return float(sum(values) / len(values))

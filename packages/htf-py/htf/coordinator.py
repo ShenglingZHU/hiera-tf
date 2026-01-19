@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -44,7 +44,7 @@ class SimpleHTFCoordinator(MultiScaleCoordinator):
         }
 
 
-def _normalize_flags(flags: Optional[Iterable[Any]], length: int, fill_value: bool = False) -> list[bool]:
+def _normalize_flags(flags: Iterable[Any] | None, length: int, fill_value: bool = False) -> list[bool]:
     if not flags:
         return [fill_value for _ in range(length)]
     normalized = [bool(flag) for flag in list(flags)[:length]]
@@ -89,7 +89,7 @@ def _map_windows_to_mask(windows: Sequence[tuple[Any, Any]], timestamps: Sequenc
 
 
 class HierarConstraintCoordinator(MultiScaleCoordinator):
-    def __init__(self, order: Optional[Sequence[str]] = None) -> None:
+    def __init__(self, order: Sequence[str] | None = None) -> None:
         self.order = list(order) if order else []
 
     def update(

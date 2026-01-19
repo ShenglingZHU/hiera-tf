@@ -6,10 +6,10 @@ import math
 from collections import deque
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
-def compute_percentile(values: Iterable[float], q: float) -> Optional[float]:
+def compute_percentile(values: Iterable[float], q: float) -> float | None:
     """
     Simple percentile computation (0–100) with linear interpolation.
     Empty input -> None.
@@ -39,7 +39,7 @@ _DEFAULT_TRACE_LIMIT = 1000
 _UNSET = object()
 
 
-def _resolve_limit(value: Any, fallback: int) -> Optional[int]:
+def _resolve_limit(value: Any, fallback: int) -> int | None:
     if value is _UNSET:
         return fallback
     if value is None:
@@ -81,7 +81,7 @@ class ValueVsRollingPercentile:
         self.history.clear()
         self.last_threshold = None
 
-    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> float | None:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
@@ -92,13 +92,13 @@ class ValueVsRollingPercentile:
             return val > threshold
         return val < threshold
 
-    def _compute_signal_and_threshold(self, val: Optional[float]) -> tuple[int, Optional[float]]:
+    def _compute_signal_and_threshold(self, val: float | None) -> tuple[int, float | None]:
         """
         Shared percentile logic used by subclasses that may need the threshold.
         Returns the signal (0/1) and the computed threshold.
         """
         signal = 0
-        threshold: Optional[float] = None
+        threshold: float | None = None
 
         if val is not None:
             if len(self.history) >= self.min_history:
@@ -129,7 +129,7 @@ class ValueVsRollingPercentileWithThreshold(ValueVsRollingPercentile):
     Extension that exposes the percentile threshold used at each step.
     """
 
-    last_threshold: Optional[float] = field(default=None, init=False)
+    last_threshold: float | None = field(default=None, init=False)
 
     def __call__(self, features: dict[str, Any]) -> int:
         val = self._get_numeric_value(features)
@@ -217,8 +217,8 @@ class SignalRunLengthReachedHistoryPercentile:
 
     current_run: int = 0
     history_runs: deque[int] = field(default_factory=deque, init=False)
-    current_threshold: Optional[float] = field(default=None, init=False)
-    last_threshold: Optional[float] = field(default=None, init=False)
+    current_threshold: float | None = field(default=None, init=False)
+    last_threshold: float | None = field(default=None, init=False)
     active: bool = False
     tail_remaining: int = 0
     run_trace: list[dict[str, Any]] = field(default_factory=list, init=False)
@@ -244,7 +244,7 @@ class SignalRunLengthReachedHistoryPercentile:
         self.tail_remaining = 0
         self.run_trace.clear()
 
-    def _compute_threshold(self) -> Optional[float]:
+    def _compute_threshold(self) -> float | None:
         if len(self.history_runs) < self.min_history_runs:
             return None
         return compute_percentile(self.history_runs, self.percentile)
@@ -440,7 +440,7 @@ class SignalValueVsLastTrueReference:
     reference_signal_key: str
     comparison: str = "lt"
 
-    last_reference_value: Optional[float] = field(default=None, init=False)
+    last_reference_value: float | None = field(default=None, init=False)
 
     def __post_init__(self) -> None:
         cmp_lower = self.comparison.lower()
@@ -451,7 +451,7 @@ class SignalValueVsLastTrueReference:
     def reset(self) -> None:
         self.last_reference_value = None
 
-    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> float | None:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
@@ -495,7 +495,7 @@ class SignalValueVsLastTargetForBase:
     target_signal_key: str
     comparison: str = "lt"
 
-    last_target_value: Optional[float] = field(default=None, init=False)
+    last_target_value: float | None = field(default=None, init=False)
 
     def __post_init__(self) -> None:
         cmp_lower = self.comparison.lower()
@@ -506,7 +506,7 @@ class SignalValueVsLastTargetForBase:
     def reset(self) -> None:
         self.last_target_value = None
 
-    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> float | None:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
@@ -543,7 +543,7 @@ class SignalValueVsPrevious:
     value_key: str
     comparison: str = "gt"
 
-    previous_value: Optional[float] = field(default=None, init=False)
+    previous_value: float | None = field(default=None, init=False)
 
     def __post_init__(self) -> None:
         cmp_lower = self.comparison.lower()
@@ -554,7 +554,7 @@ class SignalValueVsPrevious:
     def reset(self) -> None:
         self.previous_value = None
 
-    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> float | None:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
@@ -599,7 +599,7 @@ class SignalValueVsLastSignalRunStatistic:
 
     current_run_values: list[float] = field(default_factory=list, init=False)
     in_run: bool = False
-    last_statistic: Optional[float] = field(default=None, init=False)
+    last_statistic: float | None = field(default=None, init=False)
 
     def __post_init__(self) -> None:
         stat_lower = self.statistic.lower()
@@ -620,13 +620,13 @@ class SignalValueVsLastSignalRunStatistic:
         self.in_run = False
         self.last_statistic = None
 
-    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> float | None:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
         return None
 
-    def _compute_statistic(self, values: list[float]) -> Optional[float]:
+    def _compute_statistic(self, values: list[float]) -> float | None:
         if not values:
             return None
         if self.statistic == "mean":
@@ -679,8 +679,8 @@ class SignalEMAFastSlowComparison:
     ema_period_2: int
     prefer: str = "fast"
 
-    ema_1: Optional[float] = field(default=None, init=False)
-    ema_2: Optional[float] = field(default=None, init=False)
+    ema_1: float | None = field(default=None, init=False)
+    ema_2: float | None = field(default=None, init=False)
     fast_period: int = field(default=0, init=False)
     slow_period: int = field(default=0, init=False)
 
@@ -705,19 +705,19 @@ class SignalEMAFastSlowComparison:
         self.ema_1 = None
         self.ema_2 = None
 
-    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> float | None:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
         return None
 
-    def _update_ema(self, value: float, current: Optional[float], period: int) -> float:
+    def _update_ema(self, value: float, current: float | None, period: int) -> float:
         alpha = 2.0 / (period + 1.0)
         if current is None:
             return value
         return value * alpha + current * (1.0 - alpha)
 
-    def _get_fast_slow_ema(self) -> tuple[Optional[float], Optional[float]]:
+    def _get_fast_slow_ema(self) -> tuple[float | None, float | None]:
         if self.ema_period_1 < self.ema_period_2:
             return self.ema_1, self.ema_2
         return self.ema_2, self.ema_1
@@ -768,12 +768,12 @@ class SignalEMADiffVsHistoryPercentile:
     comparison: str = "gt"
     trace_limit: Any = _UNSET
 
-    ema_1: Optional[float] = field(default=None, init=False)
-    ema_2: Optional[float] = field(default=None, init=False)
-    last_abs_diff: Optional[float] = field(default=None, init=False)
-    last_threshold: Optional[float] = field(default=None, init=False)
+    ema_1: float | None = field(default=None, init=False)
+    ema_2: float | None = field(default=None, init=False)
+    last_abs_diff: float | None = field(default=None, init=False)
+    last_threshold: float | None = field(default=None, init=False)
     abs_diff_history: deque[float] = field(default_factory=deque, init=False)
-    trace: list[dict[str, Optional[float]]] = field(default_factory=list, init=False)
+    trace: list[dict[str, float | None]] = field(default_factory=list, init=False)
 
     def __post_init__(self) -> None:
         if self.ema_period_1 <= 0 or self.ema_period_2 <= 0:
@@ -801,13 +801,13 @@ class SignalEMADiffVsHistoryPercentile:
         self.abs_diff_history.clear()
         self.trace.clear()
 
-    def _get_numeric_value(self, features: dict[str, Any]) -> Optional[float]:
+    def _get_numeric_value(self, features: dict[str, Any]) -> float | None:
         raw_val = features.get(self.value_key)
         if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
             return float(raw_val)
         return None
 
-    def _update_ema(self, value: float, current: Optional[float], period: int) -> float:
+    def _update_ema(self, value: float, current: float | None, period: int) -> float:
         alpha = 2.0 / (period + 1.0)
         if current is None:
             return value
@@ -816,8 +816,8 @@ class SignalEMADiffVsHistoryPercentile:
     def __call__(self, features: dict[str, Any]) -> int:
         val = self._get_numeric_value(features)
         signal = 0
-        threshold: Optional[float] = None
-        abs_diff: Optional[float] = None
+        threshold: float | None = None
+        abs_diff: float | None = None
 
         if val is not None:
             self.ema_1 = self._update_ema(val, self.ema_1, self.ema_period_1)
@@ -873,14 +873,14 @@ class SignalIntervalBetweenMarkers:
 
     start_signal_key: str
     end_signal_key: str
-    max_length: Optional[int] = None
+    max_length: int | None = None
     intervals_limit: Any = _UNSET
 
     active: bool = False
     current_length: int = 0
-    current_start_index: Optional[int] = None
-    last_interval_length: Optional[int] = None
-    last_interval_closed_by: Optional[str] = None
+    current_start_index: int | None = None
+    last_interval_length: int | None = None
+    last_interval_closed_by: str | None = None
     intervals: list[dict[str, Any]] = field(default_factory=list, init=False)
     step_index: int = 0
 
@@ -963,7 +963,7 @@ class SignalNthTargetWithinWindowAfterTrigger:
     target_index: int
 
     active_windows: list[dict[str, int]] = field(default_factory=list, init=False)
-    last_search_success: Optional[bool] = field(default=None, init=False)
+    last_search_success: bool | None = field(default=None, init=False)
     step_index: int = 0
 
     def __post_init__(self) -> None:

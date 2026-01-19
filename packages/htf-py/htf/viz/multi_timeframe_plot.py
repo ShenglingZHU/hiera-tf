@@ -5,7 +5,7 @@ from __future__ import annotations
 from bisect import bisect_right
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Optional, Union
+from typing import Any
 
 from bokeh.layouts import Spacer, column, row
 from bokeh.models import BoxAnnotation, ColumnDataSource, LayoutDOM
@@ -50,7 +50,7 @@ def _figsize_to_pixels(figsize: tuple[int, int]) -> tuple[int, int]:
     return max(300, int(figsize[0] * 100)), max(220, int(figsize[1] * 90))
 
 
-def _resolve_key(mapping_or_str: Union[Mapping[Any, str], str, None], tf: Any) -> Optional[str]:
+def _resolve_key(mapping_or_str: Mapping[Any, str] | str | None, tf: Any) -> str | None:
     """
     Resolve a key for the given timeframe from either a mapping or a plain string.
     """
@@ -70,8 +70,8 @@ def _extract_timeframe_series(
     tf: Any,
     value_key: str,
     x_key: str,
-    scale_key: Optional[str],
-    base_key: Optional[str],
+    scale_key: str | None,
+    base_key: str | None,
 ) -> _TimeframeSeries:
     """
     Pull timestamps, values and optional signals out of a TimeframeView buffer.
@@ -139,7 +139,7 @@ def _latest_bool_before(ts_list: Sequence[Any], flags: Sequence[bool], ts: Any) 
     return bool(flags[pos])
 
 
-def _latest_value_before(ts_list: Sequence[Any], vals: Sequence[Any], ts: Any) -> Optional[Any]:
+def _latest_value_before(ts_list: Sequence[Any], vals: Sequence[Any], ts: Any) -> Any | None:
     """
     Return the most recent value whose timestamp <= ts.
     """
@@ -154,8 +154,8 @@ def _latest_value_before(ts_list: Sequence[Any], vals: Sequence[Any], ts: Any) -
 def _build_tf_series(
     timeframes: Sequence[Any],
     scale_change_signal_map: Mapping[Any, str],
-    base_signal_ltf: Union[str, Mapping[Any, str]],
-    value_key_map: Optional[Mapping[Any, str]],
+    base_signal_ltf: str | Mapping[Any, str],
+    value_key_map: Mapping[Any, str] | None,
     x_key: str,
     y_key: str,
 ) -> tuple[list[_TimeframeSeries], _TimeframeSeries, list[_TimeframeSeries]]:
@@ -168,7 +168,7 @@ def _build_tf_series(
     for idx, tf in enumerate(timeframes):
         value_key = _resolve_key(value_key_map, tf) or y_key
         scale_key = None
-        base_key: Optional[str] = None
+        base_key: str | None = None
 
         if idx < n_tfs - 1:
             scale_key = _resolve_key(scale_change_signal_map, tf)
@@ -188,7 +188,7 @@ def _build_tf_series(
     return tf_series, ltf_series, htf_series
 
 
-def _make_color_cycle(n: int, colors: Optional[Sequence[str]] = None) -> list[str]:
+def _make_color_cycle(n: int, colors: Sequence[str] | None = None) -> list[str]:
     if colors:
         cycle = list(colors)
     else:
@@ -218,7 +218,7 @@ def _build_stitched_path(tf_series: list[_TimeframeSeries]) -> dict[str, Any]:
             return True
         return all(_latest_bool_before(s.timestamps, s.scale_signal, ts) for s in htf_series)
 
-    def htf_value(ts: Any) -> Optional[Any]:
+    def htf_value(ts: Any) -> Any | None:
         for s in htf_series:
             val = _latest_value_before(s.timestamps, s.values, ts)
             if val is not None:
@@ -233,7 +233,7 @@ def _build_stitched_path(tf_series: list[_TimeframeSeries]) -> dict[str, Any]:
     htf_active: list[bool] = []
     boundaries: list[int] = []
 
-    prev_name: Optional[str] = None
+    prev_name: str | None = None
     for i, ts in enumerate(ltf_series.timestamps):
         allow = htf_allow(ts)
         if allow or not htf_series:
@@ -277,8 +277,8 @@ def plot_multi_tfs_parallel_time_series(
     x_key: str = "timestamp",
     y_key: str = "value",
     share_y: bool = False,
-    signal_key: Optional[str] = None,
-    signal_style: Optional[dict[str, Any]] = None,
+    signal_key: str | None = None,
+    signal_style: dict[str, Any] | None = None,
     figsize: tuple[int, int] = (10, 6),
 ) -> LayoutDOM:
     """
@@ -383,13 +383,13 @@ def plot_multi_tfs_single_time_serie(
     timeframes: Sequence[Any],
     *,
     scale_change_signal_map: Mapping[Any, str],
-    base_signal_ltf: Union[str, Mapping[Any, str]],
-    value_key_map: Optional[Mapping[Any, str]] = None,
+    base_signal_ltf: str | Mapping[Any, str],
+    value_key_map: Mapping[Any, str] | None = None,
     x_key: str = "timestamp",
     y_key: str = "value",
     figsize: tuple[int, int] = (12, 5),
-    title: Optional[str] = None,
-    colors: Optional[Sequence[str]] = None,
+    title: str | None = None,
+    colors: Sequence[str] | None = None,
 ) -> LayoutDOM:
     """
     Bokeh: stitched single path. LTF points are drawn only when all HTFs allow;
@@ -528,14 +528,14 @@ def plot_multi_tfs_only_ltf_time_serie(
     timeframes: Sequence[Any],
     *,
     scale_change_signal_map: Mapping[Any, str],
-    base_signal_ltf: Union[str, Mapping[Any, str]],
-    value_key_map: Optional[Mapping[Any, str]] = None,
+    base_signal_ltf: str | Mapping[Any, str],
+    value_key_map: Mapping[Any, str] | None = None,
     x_key: str = "timestamp",
     y_key: str = "value",
     figsize: tuple[int, int] = (12, 4),
-    title: Optional[str] = None,
-    colors: Optional[Sequence[str]] = None,
-    ltf_color: Optional[str] = None,
+    title: str | None = None,
+    colors: Sequence[str] | None = None,
+    ltf_color: str | None = None,
 ) -> LayoutDOM:
     """
     Bokeh: plot only LTF series while showing HTF scale-change windows and gating.
@@ -644,11 +644,11 @@ def check_multi_tfs_single_time_serie_vs_coordinator(
     timeframes: Sequence[Any],
     *,
     scale_change_signal_map: Mapping[Any, str],
-    base_signal_ltf: Union[str, Mapping[Any, str]],
-    value_key_map: Optional[Mapping[Any, str]] = None,
+    base_signal_ltf: str | Mapping[Any, str],
+    value_key_map: Mapping[Any, str] | None = None,
     x_key: str = "timestamp",
     y_key: str = "value",
-    coordinator_outputs: Optional[Sequence[Mapping[str, Any]]] = None,
+    coordinator_outputs: Sequence[Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """
     Compare plot-derived gating (all HTF signals must be true) against optional

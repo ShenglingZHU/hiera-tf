@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable
 
 Record = Mapping[str, Any]
 MutableRecord = dict[str, Any]
@@ -133,7 +133,7 @@ def _coerce_param(name: str, value: Any) -> Any:
 
 
 def _build_signal_defs_map(
-    signal_defs: Optional[Union[Mapping[str, Any], Sequence[Mapping[str, Any]]]],
+    signal_defs: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
 ) -> dict[str, Mapping[str, Any]]:
     if not signal_defs:
         return {}
@@ -194,8 +194,8 @@ def _build_evaluation_order(roots: Sequence[Mapping[str, Any]]) -> list[Mapping[
 
 def _build_node_dependencies(
     node: Mapping[str, Any], signal_defs_map: Mapping[str, Any]
-) -> tuple[dict[str, Optional[str]], dict[str, list[str]]]:
-    singles: dict[str, Optional[str]] = {}
+) -> tuple[dict[str, str | None], dict[str, list[str]]]:
+    singles: dict[str, str | None] = {}
     lists: dict[str, list[str]] = {}
     defn = signal_defs_map.get(str(node.get("type")))
     if defn and defn.get("params"):
@@ -231,7 +231,7 @@ def _build_node_dependencies(
     return singles, lists
 
 
-def _normalize_flags(flags: Optional[Iterable[Any]], length: int, fill_value: bool = False) -> list[bool]:
+def _normalize_flags(flags: Iterable[Any] | None, length: int, fill_value: bool = False) -> list[bool]:
     if not flags:
         return [fill_value for _ in range(length)]
     normalized = [bool(flag) for flag in list(flags)[:length]]
@@ -368,9 +368,9 @@ class FeatureModule:
 @dataclass
 class TimeframeView:
     config: TimeframeConfig
-    feature_module: Optional[FeatureModule] = None
-    feature_fn: Optional[FeatureFunction] = None
-    signal_fn: Optional[SignalFunction] = None
+    feature_module: FeatureModule | None = None
+    feature_fn: FeatureFunction | None = None
+    signal_fn: SignalFunction | None = None
 
     buffer: list[MutableRecord] = field(default_factory=list, init=False)
     features: FeatureDict = field(default_factory=dict, init=False)
@@ -460,12 +460,12 @@ class TimeframeView:
         *,
         include_dependencies: bool = False,
         include_values: bool = False,
-        hierar_constraint_series: Optional[Sequence[Mapping[str, Any]]] = None,
-        timeframe_series: Optional[Sequence[Mapping[str, Any]]] = None,
-        signal_graph: Optional[Union[Mapping[str, Any], Sequence[Mapping[str, Any]]]] = None,
-        signal_defs: Optional[Union[Mapping[str, Any], Sequence[Mapping[str, Any]]]] = None,
+        hierar_constraint_series: Sequence[Mapping[str, Any]] | None = None,
+        timeframe_series: Sequence[Mapping[str, Any]] | None = None,
+        signal_graph: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None = None,
+        signal_defs: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None = None,
         timestamp_key: str = "timestamp",
-        current_series_id: Optional[str] = None,
+        current_series_id: str | None = None,
     ):
         """
         Build a DataFrame for the selected signal and optional dependencies/values/hierarchy constraint signals.
@@ -497,7 +497,7 @@ class TimeframeView:
         signal_defs_map = _build_signal_defs_map(signal_defs)
 
         def _resolve_roots(
-            graph: Optional[Union[Mapping[str, Any], Sequence[Mapping[str, Any]]]],
+            graph: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
         ) -> list[Mapping[str, Any]]:
             if not graph:
                 return []
@@ -515,7 +515,7 @@ class TimeframeView:
 
         roots = _resolve_roots(signal_graph)
         nodes = _collect_signal_nodes(roots)
-        target_node: Optional[Mapping[str, Any]] = None
+        target_node: Mapping[str, Any] | None = None
         if roots:
             for node in nodes:
                 if str(node.get("type")) != signal_type:
@@ -745,7 +745,7 @@ class TimeframeView:
                 ]
                 hierar_constraint_cols[col_name] = mismatch
 
-        hierar_constraint_all: Optional[list[bool]] = None
+        hierar_constraint_all: list[bool] | None = None
         if current_timestamps and higher_series_order:
             effective_masks: list[list[bool]] = []
             for series_name in higher_series_order:
