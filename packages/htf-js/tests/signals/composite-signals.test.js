@@ -133,4 +133,3 @@ describe("SignalExternalFlag", () => {
     sig.reset();
   });
 });
-

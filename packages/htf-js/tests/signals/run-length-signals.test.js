@@ -270,4 +270,3 @@ describe("SignalRunLengthVsHistoryPercentile", () => {
     assert.strictEqual(result, 1);
   });
 });
-

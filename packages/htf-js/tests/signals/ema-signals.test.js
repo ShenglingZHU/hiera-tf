@@ -190,4 +190,3 @@ describe("SignalEMADiffVsHistoryPercentile", () => {
     assert.ok(sig.abs_diff_history.length > 0);
   });
 });
-

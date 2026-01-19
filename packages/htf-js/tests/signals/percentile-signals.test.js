@@ -7,11 +7,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
 require("../setup.js");
-const {
-  computePercentile,
-  ValueVsRollingPercentile,
-  ValueVsRollingPercentileWithThreshold,
-} = HTF;
+const { computePercentile, ValueVsRollingPercentile, ValueVsRollingPercentileWithThreshold } = HTF;
 
 describe("computePercentile", () => {
   it("should return null for empty array", () => {
@@ -200,4 +196,3 @@ describe("ValueVsRollingPercentileWithThreshold", () => {
     assert.ok(Math.abs(sig.last_threshold - 2) < 0.001);
   });
 });
-

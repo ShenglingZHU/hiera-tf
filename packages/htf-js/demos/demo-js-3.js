@@ -138,8 +138,10 @@ const main = () => {
 
   console.log("timestamp | TEMP | HTF(15m) | LTF_raw | LTF_gated | LTF_pctl | HTF_pctl");
   results.slice(-12).forEach((row) => {
-    const ltfThreshold = row.ltfThreshold === null || row.ltfThreshold === undefined ? "None" : row.ltfThreshold.toFixed(2);
-    const htfThreshold = row.htfThreshold === null || row.htfThreshold === undefined ? "None" : row.htfThreshold.toFixed(2);
+    const ltfThreshold =
+      row.ltfThreshold === null || row.ltfThreshold === undefined ? "None" : row.ltfThreshold.toFixed(2);
+    const htfThreshold =
+      row.htfThreshold === null || row.htfThreshold === undefined ? "None" : row.htfThreshold.toFixed(2);
     console.log(
       `${row.timestamp} | ${row.TEMP.toFixed(2)} | ${row.htfSignal} | ${row.ltfRaw} | ${row.ltfGated} | ${ltfThreshold} | ${htfThreshold}`
     );

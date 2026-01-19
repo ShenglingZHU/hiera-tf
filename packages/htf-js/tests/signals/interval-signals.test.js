@@ -7,10 +7,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
 require("../setup.js");
-const {
-  SignalIntervalBetweenMarkers,
-  SignalNthTargetWithinWindowAfterTrigger,
-} = HTF;
+const { SignalIntervalBetweenMarkers, SignalNthTargetWithinWindowAfterTrigger } = HTF;
 
 describe("SignalIntervalBetweenMarkers", () => {
   it("should initialize with parameters", () => {
@@ -182,4 +179,3 @@ describe("SignalNthTargetWithinWindowAfterTrigger", () => {
     assert.strictEqual(sig.step_index, 0);
   });
 });
-

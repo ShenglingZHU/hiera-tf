@@ -7,11 +7,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
 require("./setup.js");
-const {
-  TimeframeState,
-  SimpleHTFCoordinator,
-  HierarConstraintCoordinator,
-} = HTF;
+const { TimeframeState, SimpleHTFCoordinator, HierarConstraintCoordinator } = HTF;
 
 describe("TimeframeState", () => {
   it("should initialize with provided values", () => {
@@ -140,4 +136,3 @@ describe("HierarConstraintCoordinator", () => {
     assert.strictEqual(result.raw_map.child, 1);
   });
 });
-

@@ -142,5 +142,3 @@ describe("HTFFramework Integration", () => {
     assert.ok("coordination" in result);
   });
 });
-
-

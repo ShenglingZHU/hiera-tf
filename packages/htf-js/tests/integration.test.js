@@ -209,5 +209,3 @@ describe("Integration: Reset Behavior", () => {
     assert.strictEqual(sig.last_threshold, null);
   });
 });
-
-

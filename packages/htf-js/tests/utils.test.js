@@ -60,7 +60,10 @@ describe("truthyWindows", () => {
     const flags = [true, true, false, true, true, true, false];
     const xs = [1, 2, 3, 4, 5, 6, 7];
     const result = truthyWindows(flags, xs);
-    assert.deepStrictEqual(result, [[1, 2], [4, 6]]);
+    assert.deepStrictEqual(result, [
+      [1, 2],
+      [4, 6],
+    ]);
   });
 
   it("should handle window at end", () => {
@@ -97,17 +100,22 @@ describe("mapWindowsToMask", () => {
   });
 
   it("should map multiple windows correctly", () => {
-    const windows = [[1, 2], [4, 5]];
+    const windows = [
+      [1, 2],
+      [4, 5],
+    ];
     const timestamps = [1, 2, 3, 4, 5];
     const result = mapWindowsToMask(windows, timestamps);
     assert.deepStrictEqual(result, [true, true, false, true, true]);
   });
 
   it("should handle non-overlapping windows", () => {
-    const windows = [[1, 1], [5, 5]];
+    const windows = [
+      [1, 1],
+      [5, 5],
+    ];
     const timestamps = [1, 2, 3, 4, 5];
     const result = mapWindowsToMask(windows, timestamps);
     assert.deepStrictEqual(result, [true, false, false, false, true]);
   });
 });
-

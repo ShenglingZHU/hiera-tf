@@ -253,4 +253,3 @@ describe("SignalValueVsLastSignalRunStatistic", () => {
     assert.strictEqual(sig.update({ val: 10, sig: 0 }), 0); // 10 < 15
   });
 });
-

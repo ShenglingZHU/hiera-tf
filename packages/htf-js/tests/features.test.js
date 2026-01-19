@@ -50,13 +50,7 @@ describe("SingleFieldStatsFeature", () => {
       field_name: "value",
       prefix: "val",
     });
-    const records = [
-      { value: 10 },
-      { value: 20 },
-      { value: 30 },
-      { value: 40 },
-      { value: 50 },
-    ];
+    const records = [{ value: 10 }, { value: 20 }, { value: 30 }, { value: 40 }, { value: 50 }];
     const result = feature.compute(records);
 
     assert.strictEqual(result.val_count, 5);
@@ -70,13 +64,7 @@ describe("SingleFieldStatsFeature", () => {
       field_name: "value",
       prefix: "val",
     });
-    const records = [
-      { value: 10 },
-      { value: "string" },
-      { value: 30 },
-      { value: null },
-      { value: 50 },
-    ];
+    const records = [{ value: 10 }, { value: "string" }, { value: 30 }, { value: null }, { value: 50 }];
     const result = feature.compute(records);
 
     assert.strictEqual(result.val_count, 3);
@@ -169,4 +157,3 @@ describe("LastRecordEchoFeature", () => {
     assert.strictEqual(result.null_val, null);
   });
 });
-
