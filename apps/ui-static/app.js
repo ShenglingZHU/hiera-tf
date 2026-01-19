@@ -1129,7 +1129,7 @@ function renderExportPanel(series) {
   state.exportState.signalMap = new Map(nodes.map((node) => [node.id, node]));
   state.exportState.selectedIds.clear();
 
-  elements.exportSubtitle.textContent = series && series.name ? t("export.subtitle", { name: series.name }) : "";
+  elements.exportSubtitle.textContent = series?.name ? t("export.subtitle", { name: series.name }) : "";
   elements.exportSignalList.innerHTML = "";
   if (!nodes.length) {
     elements.exportSignalEmpty.classList.remove("hidden");
@@ -7055,4 +7055,3 @@ document.addEventListener("DOMContentLoaded", () => {
 window.addEventListener("i18n:changed", () => {
   refreshI18nUi();
 });
-
