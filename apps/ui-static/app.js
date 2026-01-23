@@ -5182,6 +5182,12 @@ function removeSignalNode(nodeId) {
     series.externalSignals = (series.externalSignals || []).filter((item) => !externalIds.has(item.id));
     syncExternalSignals(series);
   }
+  if (series.viz && Array.isArray(series.viz.elements)) {
+    const remainingSignalIds = new Set(collectSignalNodes(series).map((node) => node.id));
+    series.viz.elements = series.viz.elements.filter(
+      (element) => element.type !== "signal" || !element.signalId || remainingSignalIds.has(element.signalId)
+    );
+  }
   renderSignalPanel(series);
   renderVizPanel(series);
 }
@@ -5203,6 +5209,12 @@ function removeSignalNodeRecursive(node, nodeId) {
 
 function syncVizElements(series) {
   const signalNodes = collectSignalNodes(series);
+  if (series.viz && Array.isArray(series.viz.elements)) {
+    const remainingSignalIds = new Set(signalNodes.map((node) => node.id));
+    series.viz.elements = series.viz.elements.filter(
+      (element) => element.type !== "signal" || !element.signalId || remainingSignalIds.has(element.signalId)
+    );
+  }
   updateSignalVizLabels(series, signalNodes);
   if (!series.viz.initialized) {
     const defaults = [
